@@ -7,7 +7,7 @@ const NutritionGuide = () => {
   const [meals, setMeals] = useState([]); // Stores meal cards
   const [loading, setLoading] = useState(false);
 
-  const API_KEY = ""; 
+  const API_KEY = "AIzaSyDX5zB2LFYlV8UxF7K61ZxRaXy9tNp-ltI"; 
 
   const genAI = new GoogleGenerativeAI(API_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });

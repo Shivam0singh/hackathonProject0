@@ -8,6 +8,7 @@ import { AuthProvider } from "./context/AuthContext";
 import Dashboard from "./components/Dashboard";
 import CycleTracker from "./components/CycleTracker";
 import NutritionGuide from "./components/NutritionGuide";
+import EducationalInsights from "./components/EducationalInsights";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/cycle-tracker" element={<CycleTracker />} />
           <Route path="/nutrition" element={<NutritionGuide />} />
+          <Route path="/insights" element={<EducationalInsights />} />
         </Routes>
       </Router>
     </AuthProvider>

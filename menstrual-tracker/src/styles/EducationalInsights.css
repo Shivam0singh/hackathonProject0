@@ -1,0 +1,94 @@
+.educational-insights {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  
+  .topic-selector {
+    margin-bottom: 20px;
+  }
+  
+  .topic-selector label {
+    margin-right: 10px;
+    font-size: 16px;
+  }
+  
+  .topic-selector select {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 10px;
+  }
+  
+  .topic-selector button {
+    padding: 8px 16px;
+    background-color: #ff5a7d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .topic-selector button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .insight-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .insight-item {
+    display: flex;
+    align-items: flex-start;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .insight-icon {
+    font-size: 20px;
+    color: #ff5a7d;
+    margin-right: 10px;
+  }
+  
+  .insight-item p {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.6;
+    margin: 0;
+  }
+  
+  .modal {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 500px;
+    margin: 0 auto;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .modal-overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  .close-button {
+    background-color: #ff5a7d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+  }

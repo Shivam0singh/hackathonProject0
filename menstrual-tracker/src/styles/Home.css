@@ -1,9 +1,8 @@
-body{
+*{
   margin: 0;
   padding: 0;
-  font-family: 'Roboto', sans-serif;
+  box-sizing: border-box;
 }
-
 .home {
   display: flex;
   flex-direction: column;
@@ -11,26 +10,27 @@ body{
   justify-content: center;
   height: 100vh;
   text-align: center;
-  background-color: #fafafa;
+  background-color: #fafafa; /* Light background */
+  color: #000; /* Dark text (no quotes) */
 }
 
 .home-title {
   font-size: 2.5rem;
-  color: #333;
+  color: #333; /* Dark gray for heading */
   margin-bottom: 1rem;
 }
 
 .home-description {
   font-size: 1.2rem;
-  color: #666;
+  color: #666; /* Medium gray for description */
   margin-bottom: 2rem;
 }
 
 .get-started-button {
   padding: 0.8rem 2rem;
   font-size: 1rem;
-  color: #fff;
-  background-color: #ff5a7d; 
+  color: #fff; /* White text */
+  background-color: #ff5a7d; /* Pink button */
   border: none;
   border-radius: 5px;
   cursor: pointer;
