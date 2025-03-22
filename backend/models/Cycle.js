@@ -6,7 +6,8 @@ const CycleSchema = new mongoose.Schema({
   endDate: { type: Date, required: true }, // End date of the period
   cycleLength: { type: Number }, // Length of the cycle (in days)
   periodLength: { type: Number }, // Length of the period (in days)
-  phase: { type: String, enum: ["Menstrual", "Follicular", "Ovulation", "Luteal"] }, // Current phase
+  phase: { type: String, enum: ["Menstrual", "Follicular", "Ovulation", "Luteal"] }, 
+  moonPhase: { type: String },
 });
 
 module.exports = mongoose.model("Cycle", CycleSchema);

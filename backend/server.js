@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const axios = require("axios");
 const User = require("./models/User");
 
 const app = express();
@@ -164,6 +165,33 @@ app.get("/api/cycles/predict", authenticate, async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({ error: "Failed to predict cycle" });
+  }
+});
+
+// Get moon phase for a specific date
+app.get("/api/moon-phase", async (req, res) => {
+  const { date } = req.query; // Date in YYYY-MM-DD format
+  try {
+    const response = await axios.get(`https://api.farmsense.net/v1/moonphases/?d=${date}`);
+    const moonPhase = response.data[0].Phase; // Extract moon phase
+    res.json({ moonPhase });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch moon phase" });
+  }
+});
+
+// Get astrology-based suggestions
+app.post("/api/astrology-suggestions", async (req, res) => {
+  const { zodiacSign, cyclePhase } = req.body;
+  try {
+    const response = await axios.post("https://api.gemini.com/insights", {
+      zodiacSign,
+      cyclePhase,
+    });
+    const suggestion = response.data.suggestion; // Extract suggestion
+    res.json({ suggestion });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch astrology suggestion" });
   }
 });
 
