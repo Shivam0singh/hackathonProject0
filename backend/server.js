@@ -5,8 +5,14 @@ const mongoose = require("mongoose");
 const app = express();
 const PORT = process.env.PORT || 3000; 
 const mongoUrl = process.env.MONGO_URI;
+const cors = require("cors");
 
 app.use(express.json());
+app.use(cors({
+    origin: "http://localhost:3000", 
+    methods: "GET, POST",
+    allowedHeaders: "Content-Type, Authorization"
+  }));
 
 const jwt = require("jsonwebtoken");
 const User = require("./models/User");

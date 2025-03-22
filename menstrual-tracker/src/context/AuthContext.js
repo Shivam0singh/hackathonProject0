@@ -7,13 +7,22 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
 
   const login = async (username, password) => {
-    const response = await axios.post("http://localhost:5000/api/login", { username, password });
-    localStorage.setItem("token", response.data.token);
-    setToken(response.data.token);
+    try {
+      const response = await axios.post("http://localhost:5001/api/login", { username, password });
+      localStorage.setItem("token", response.data.token);
+      setToken(response.data.token);
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   };
 
   const register = async (username, password) => {
-    await axios.post("http://localhost:5000/api/register", { username, password });
+    try {
+      await axios.post("http://localhost:5001/api/register", { username, password });
+      console.log("User registered successfully");
+    } catch (error) {
+      console.error("Registration failed:", error);
+    }
   };
 
   const logout = () => {

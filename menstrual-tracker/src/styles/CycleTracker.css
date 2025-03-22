@@ -1,29 +1,36 @@
 .cycle-tracker {
-    margin-top: 30px;
-  }
-  
-  .cycle-tracker-title {
-    font-size: 1.5rem;
-  }
-  
-  .cycle-input {
-    margin: 10px 0;
-    padding: 10px;
-    font-size: 1rem;
-    width: 200px;
-  }
-  
-  .cycle-button {
-    padding: 10px 20px;
-    background-color: #004d99;
-    color: white;
-    font-size: 1rem;
-    border: none;
-    cursor: pointer;
-    margin-top: 10px;
-  }
-  
-  .cycle-button:hover {
-    background-color: #003366;
-  }
-  
+  margin-top: 30px;
+  background-color: #fafafa; 
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.cycle-tracker-title {
+  font-size: 1.5rem;
+  color: #333; 
+}
+
+.cycle-input {
+  margin: 10px 0;
+  padding: 10px;
+  font-size: 1rem;
+  width: 200px;
+  border: 1px solid #ff5a7d; 
+  border-radius: 5px;
+}
+
+.cycle-button {
+  padding: 10px 20px;
+  background-color: #ff5a7d; 
+  color: white; 
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.cycle-button:hover {
+  background-color: #e64a6d;
+}

@@ -1,16 +1,36 @@
 .home {
-    text-align: center;
-    margin-top: 50px;
-  }
-  
-  .home-title {
-    font-size: 3rem;
-    color: #2e3b4e;
-  }
-  
-  .home-description {
-    font-size: 1.2rem;
-    color: #555;
-    margin-top: 20px;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+  background-color: #fafafa;
+}
+
+.home-title {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.home-description {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.get-started-button {
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  color: #fff;
+  background-color: #ff5a7d; 
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.get-started-button:hover {
+  background-color: #e64a6d; /* Slightly darker pink on hover */
+}
