@@ -4,11 +4,15 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const axios = require("axios");
 const User = require("./models/User");
 const app = express();
 const PORT = process.env.PORT || 5001;
 const mongoUrl = process.env.MONGO_URI;
 const Cycle = require("./models/Cycle");
+
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // Ensure this is set in your .env file
+
 // Middleware
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(express.json());
@@ -26,6 +30,8 @@ const authenticate = (req, res, next) => {
     next();
   });
 };
+
+
 // Connect to MongoDB
 mongoose.connect(mongoUrl)
   .then(() => console.log("Connected to MongoDB successfully!"))
@@ -76,6 +82,8 @@ app.get("/api/protected", (req, res) => {
     res.json({ message: "You are authenticated", userId: decoded.userId });
   });
 });
+
+
 // Add a new cycle
 app.post("/api/cycles", authenticate, async (req, res) => {
   const { startDate, endDate } = req.body;
@@ -141,6 +149,58 @@ app.get("/api/cycles/predict", authenticate, async (req, res) => {
     res.status(400).json({ error: "Failed to predict cycle" });
   }
 });
+
+// Get moon phase for a specific date
+app.get("/api/moon-phase", async (req, res) => {
+  const { date } = req.query; // Date in YYYY-MM-DD format
+  try {
+    const response = await axios.get(`https://api.farmsense.net/v1/moonphases/?d=${date}`);
+    const moonPhase = response.data[0].Phase; // Extract moon phase
+    res.json({ moonPhase });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch moon phase" });
+  }
+});
+
+// Get astrology-based suggestions using Gemini API
+app.post("/api/astrology-suggestions", async (req, res) => {
+  const { zodiacSign, cyclePhase } = req.body;
+
+  // Validate input
+  if (!zodiacSign || !cyclePhase) {
+    return res.status(400).json({ error: "zodiacSign and cyclePhase are required" });
+  }
+
+  try {
+    const prompt = `Provide astrology-based suggestions for a ${zodiacSign} in the ${cyclePhase} phase of their menstrual cycle.`;
+    const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const suggestion = response.data.candidates[0].content.parts[0].text;
+    res.json({ suggestion });
+  } catch (error) {
+    console.error("Gemini API Error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Failed to fetch astrology suggestion" });
+  }
+});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

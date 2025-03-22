@@ -5,16 +5,14 @@
   max-width: 800px;
   margin: 0 auto;
 }
-
 .cycle-tracker-title {
   font-size: 1.5rem;
   color: #333;
   margin-bottom: 20px;
 }
-
 .cycle-button {
   padding: 10px 20px;
-  background-color: #ff5a7d;
+  background-color: #FF5A7D;
   color: white;
   font-size: 1rem;
   border: none;
@@ -24,27 +22,21 @@
   transition: background-color 0.3s ease;
   margin-right: 10px;
 }
-
 .cycle-button:hover {
-  background-color: #e64a6d;
+  background-color: #E64A6D;
 }
-
 .cycle-button.cancel {
   background-color: #ccc;
 }
-
 .cycle-button.cancel:hover {
   background-color: #999;
 }
-
 .cycle-button.predict {
-  background-color: #4caf50;
+  background-color: #4CAF50;
 }
-
 .cycle-button.predict:hover {
-  background-color: #45a049;
+  background-color: #45A049;
 }
-
 .modal {
   background: white;
   padding: 20px;
@@ -55,7 +47,6 @@
   top: 50%;
   transform: translateY(-50%);
 }
-
 .modal-overlay {
   background: rgba(0, 0, 0, 0.5);
   position: fixed;
@@ -67,7 +58,6 @@
   align-items: center;
   justify-content: center;
 }
-
 /* Calendar Styling */
 .react-calendar {
   width: 100%;
@@ -78,36 +68,327 @@
   padding: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
 .react-calendar__tile {
   border-radius: 5px;
   padding: 10px;
 }
-
 .react-calendar__tile--active {
-  background: #ff5a7d;
+  background: #FF5A7D;
   color: white;
 }
-
 .react-calendar__tile--now {
-  background: #f0f0f0;
+  background: #F0F0F0;
 }
-
 /* Highlighted Dates */
 .highlight-next-period {
-  background: #ff5a7d;
+  background: #FF5A7D;
   color: white;
   border-radius: 50%;
 }
-
 .highlight-ovulation {
-  background: #4caf50;
+  background: #4CAF50;
   color: white;
   border-radius: 50%;
 }
-
 .highlight-fertile {
-  background: #ffcc00;
+  background: #FFCC00;
   color: black;
   border-radius: 50%;
+}
+/* Astrology */
+/* Existing CSS (do not remove) */
+.cycle-tracker {
+  margin-top: 30px;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.cycle-tracker-title {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 20px;
+}
+.cycle-button {
+  padding: 10px 20px;
+  background-color: #FF5A7D;
+  color: white;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  margin-right: 10px;
+}
+.cycle-button:hover {
+  background-color: #E64A6D;
+}
+.cycle-button.cancel {
+  background-color: #ccc;
+}
+.cycle-button.cancel:hover {
+  background-color: #999;
+}
+.cycle-button.predict {
+  background-color: #4CAF50;
+}
+.cycle-button.predict:hover {
+  background-color: #45A049;
+}
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 500px;
+  margin: 0 auto;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Calendar Styling */
+.react-calendar {
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.react-calendar__tile {
+  border-radius: 5px;
+  padding: 10px;
+}
+.react-calendar__tile--active {
+  background: #FF5A7D;
+  color: white;
+}
+.react-calendar__tile--now {
+  background: #F0F0F0;
+}
+/* Highlighted Dates */
+.highlight-next-period {
+  background: #FF5A7D;
+  color: white;
+  border-radius: 50%;
+}
+.highlight-ovulation {
+  background: #4CAF50;
+  color: white;
+  border-radius: 50%;
+}
+.highlight-fertile {
+  background: #FFCC00;
+  color: black;
+  border-radius: 50%;
+}
+/* New Styles for Astrology Insights */
+.astrology-insights {
+  margin-top: 20px;
+  padding: 20px;
+  background: #F9F9F9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.astrology-insights h3 {
+  font-size: 1.25rem;
+  color: #333;
+  margin-bottom: 15px;
+}
+.astrology-insights .phase-icon {
+  width: 48px;
+  height: 48px;
+  margin-right: 15px;
+  border-radius: 50%;
+  background-color: #fff;
+  padding: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.astrology-insights .moon-phase {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.astrology-insights .moon-phase p {
+  font-size: 1rem;
+  color: #555;
+  margin: 0;
+}
+.astrology-insights .suggestion-box {
+  margin-top: 15px;
+  padding: 15px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.astrology-insights .suggestion-box h4 {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+.astrology-insights .suggestion-box p {
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.5;
+  margin: 0;
+}
+/* Phase-Specific Colors */
+.phase-menstrual {
+  background-color: #FFEBEE; /* Light red */
+}
+.phase-follicular {
+  background-color: #E3F2FD; /* Light blue */
+}
+.phase-ovulation {
+  background-color: #F1F8E9; /* Light green */
+}
+.phase-luteal {
+  background-color: #FFF3E0; /* Light orange */
+}
+.zodiac-dropdown {
+  margin-top: 20px;
+}
+.zodiac-dropdown label {
+  font-size: 1rem;
+  color: #333;
+  margin-right: 10px;
+}
+.zodiac-dropdown select {
+  padding: 8px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+.phase-icon {
+  font-size: 24px;
+  margin-right: 10px;
+  color: #333;
+}
+/* Circular Calendar (Lunar Cycle Wheel) */
+.circular-calendar {
+  margin-top: 20px;
+  text-align: center;
+}
+.lunar-wheel {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin: 0 auto;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+}
+.moon-phase-label {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center;
+}
+.moon-phase-label span {
+  font-size: 0.9rem;
+  color: #333;
+}
+/* Moon Phase Animation */
+.moon-animation {
+  margin-top: 20px;
+  text-align: center;
+}
+.moon {
+  font-size: 100px;
+  color: #333;
+  animation: pulse 2s infinite;
+}
+/* Astrology Modal - Scrollable */
+/* Astrology Modal - White Background */
+.astrology-modal {
+  background: #FFFFFF;
+  border-radius: 15px;
+  padding: 20px;
+  max-width: 600px;
+  max-height: 80vh; /* Limit modal height */
+  margin: 0 auto;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  color: #333333;
+  overflow-y: auto; /* Make modal content scrollable */
+}
+.astrology-modal-content {
+  position: relative;
+}
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #333333;
+  font-size: 20px;
+  cursor: pointer;
+}
+.close-button:hover {
+  color: #FF6B6B;
+}
+.modal-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333333;
+  text-align: center;
+}
+.moon-phase-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.moon-phase-icon {
+  font-size: 40px;
+  margin-right: 10px;
+  color: #FF6B6B;
+}
+.moon-phase-text {
+  font-size: 18px;
+  color: #333333;
+}
+.suggestion-box {
+  background: #F9F9F9;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+.suggestion-title {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #FF6B6B;
+}
+.suggestion-content {
+  font-size: 16px;
+  color: #333333;
+  line-height: 1.6;
+}
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }

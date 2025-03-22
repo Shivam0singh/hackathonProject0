@@ -3,11 +3,12 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import "../styles/NutritionGuide.css";
 
 const NutritionGuide = () => {
-  const [phase, setPhase] = useState("ovulation"); // Default phase
+  const [phase, setPhase] = useState("menstrual"); // Default phase
   const [meals, setMeals] = useState([]); // Stores meal cards
   const [loading, setLoading] = useState(false);
+  const [selectedMeal, setSelectedMeal] = useState(null);
 
-  const API_KEY = "AIzaSyDX5zB2LFYlV8UxF7K61ZxRaXy9tNp-ltI"; 
+  const API_KEY = process.env.REACT_APP_GEMINI_API_KEY; 
 
   const genAI = new GoogleGenerativeAI(API_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
