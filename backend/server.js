@@ -14,6 +14,8 @@ const mongoUrl = process.env.MONGO_URI;
 
 const Cycle = require("./models/Cycle");
 
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // Ensure this is set in your .env file
+
 // Middleware
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(express.json());
@@ -33,7 +35,6 @@ const authenticate = (req, res, next) => {
     next();
   });
 };
-
 
 // Connect to MongoDB
 mongoose.connect(mongoUrl)
@@ -91,7 +92,6 @@ app.get("/api/protected", (req, res) => {
     res.json({ message: "You are authenticated", userId: decoded.userId });
   });
 });
-
 
 // Add a new cycle
 app.post("/api/cycles", authenticate, async (req, res) => {
@@ -180,17 +180,41 @@ app.get("/api/moon-phase", async (req, res) => {
   }
 });
 
-// Get astrology-based suggestions
+// Get astrology-based suggestions using Gemini API
 app.post("/api/astrology-suggestions", async (req, res) => {
   const { zodiacSign, cyclePhase } = req.body;
+
+  // Validate input
+  if (!zodiacSign || !cyclePhase) {
+    return res.status(400).json({ error: "zodiacSign and cyclePhase are required" });
+  }
+
   try {
-    const response = await axios.post("https://api.gemini.com/insights", {
-      zodiacSign,
-      cyclePhase,
-    });
-    const suggestion = response.data.suggestion; // Extract suggestion
+    const prompt = `Provide astrology-based suggestions for a ${zodiacSign} in the ${cyclePhase} phase of their menstrual cycle.`;
+    const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const suggestion = response.data.candidates[0].content.parts[0].text;
     res.json({ suggestion });
   } catch (error) {
+    console.error("Gemini API Error:", error.response?.data || error.message);
     res.status(500).json({ error: "Failed to fetch astrology suggestion" });
   }
 });
