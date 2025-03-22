@@ -11,9 +11,28 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 const mongoUrl = process.env.MONGO_URI;
 
+const Cycle = require("./models/Cycle");
+
 // Middleware
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(express.json());
+
+// Middleware to verify JWT token
+const authenticate = (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  jwt.verify(token, "your-secret-key", (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ error: "Invalid token" });
+    }
+    req.user = decoded; // Attach user data to the request object
+    next();
+  });
+};
+
 
 // Connect to MongoDB
 mongoose.connect(mongoUrl)
@@ -70,6 +89,82 @@ app.get("/api/protected", (req, res) => {
     if (err) return res.status(401).json({ error: "Invalid token" });
     res.json({ message: "You are authenticated", userId: decoded.userId });
   });
+});
+
+
+// Add a new cycle
+app.post("/api/cycles", authenticate, async (req, res) => {
+  const { startDate, endDate } = req.body;
+  const userId = req.user.userId; // Extract userId from the token
+  try {
+    const cycleLength = Math.floor(
+      (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)
+    ); // Calculate cycle length in days
+    const periodLength = cycleLength; // For simplicity, period length = cycle length
+
+    // Determine the current phase (simplified logic)
+    const today = new Date();
+    const daysSinceStart = Math.floor((today - new Date(startDate)) / (1000 * 60 * 60 * 24));
+    let phase;
+    if (daysSinceStart < 5) {
+      phase = "Menstrual";
+    } else if (daysSinceStart < 14) {
+      phase = "Follicular";
+    } else if (daysSinceStart === 14) {
+      phase = "Ovulation";
+    } else {
+      phase = "Luteal";
+    }
+
+    const cycle = new Cycle({ userId, startDate, endDate, cycleLength, periodLength, phase });
+    await cycle.save();
+    res.status(201).json(cycle);
+  } catch (error) {
+    res.status(400).json({ error: "Failed to add cycle" });
+  }
+});
+
+// Get all cycles for a user
+app.get("/api/cycles", authenticate, async (req, res) => {
+  const userId = req.user.userId; // Extract userId from the token
+  try {
+    const cycles = await Cycle.find({ userId }).sort({ startDate: -1 }); // Sort by most recent
+    res.json(cycles);
+  } catch (error) {
+    res.status(400).json({ error: "Failed to fetch cycles" });
+  }
+});
+
+// Predict next period and fertile/ovulation windows
+app.get("/api/cycles/predict", authenticate, async (req, res) => {
+  const userId = req.user.userId; // Extract userId from the token
+  try {
+    const cycles = await Cycle.find({ userId }).sort({ startDate: -1 });
+    if (cycles.length === 0) {
+      return res.status(400).json({ error: "No cycles found" });
+    }
+
+    const lastCycle = cycles[0];
+    const averageCycleLength =
+      cycles.reduce((sum, cycle) => sum + cycle.cycleLength, 0) / cycles.length;
+
+    const nextPeriodDate = new Date(lastCycle.endDate);
+    nextPeriodDate.setDate(nextPeriodDate.getDate() + averageCycleLength);
+
+    const fertileWindowStart = new Date(nextPeriodDate);
+    fertileWindowStart.setDate(fertileWindowStart.getDate() - 14); // Ovulation typically occurs 14 days before the next period
+
+    const fertileWindowEnd = new Date(fertileWindowStart);
+    fertileWindowEnd.setDate(fertileWindowEnd.getDate() + 5); // Fertile window is ~5 days
+
+    res.json({
+      nextPeriodDate,
+      fertileWindow: { start: fertileWindowStart, end: fertileWindowEnd },
+      ovulationDate: fertileWindowStart, // Ovulation occurs at the start of the fertile window
+    });
+  } catch (error) {
+    res.status(400).json({ error: "Failed to predict cycle" });
+  }
 });
 
 // Start the server

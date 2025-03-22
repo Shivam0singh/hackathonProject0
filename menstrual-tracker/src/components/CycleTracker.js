@@ -1,73 +1,126 @@
-// import React, { useState } from 'react';
-// import axios from 'axios';
-// import '../styles/CycleTracker.css';
-
-// function CycleTracker() {
-//   const [startDate, setStartDate] = useState('');
-//   const [endDate, setEndDate] = useState('');
-
-//   const addCycle = async () => {
-//     try {
-//       const userId = 'user_id_here'; // Replace with logged-in user ID
-//       await axios.post(`http://localhost:5000/api/cycles/${userId}/cycles`, { startDate, endDate });
-//       alert('Cycle added successfully!');
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-
-//   return (
-//     <div className="cycle-tracker">
-//       <h3 className="cycle-tracker-title">Cycle Tracker</h3>
-//       <input
-//         type="date"
-//         value={startDate}
-//         onChange={(e) => setStartDate(e.target.value)}
-//         className="cycle-input"
-//       />
-//       <input
-//         type="date"
-//         value={endDate}
-//         onChange={(e) => setEndDate(e.target.value)}
-//         className="cycle-input"
-//       />
-//       <button onClick={addCycle} className="cycle-button">Add Cycle</button>
-//     </div>
-//   );
-// }
-
-// export default CycleTracker;
-
-
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import AuthContext from "../context/AuthContext";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 
 const CycleTracker = () => {
-  const { token } = useContext(AuthContext);
+  const { token, userId } = useContext(AuthContext);
   const [cycleData, setCycleData] = useState([]);
+  const [prediction, setPrediction] = useState(null);
+  const [calendarDate, setCalendarDate] = useState([new Date(), new Date()]); 
+  const [error, setError] = useState("");
 
+  // Fetch cycle data
+  useEffect(() => {
+    const fetchCycles = async () => {
+      try {
+        const response = await axios.get("http://localhost:5001/api/cycles", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setCycleData(response.data);
+      } catch (error) {
+        console.error("Failed to fetch cycles:", error);
+        setError("Failed to fetch cycles. Please try again.");
+      }
+    };
+    fetchCycles();
+  }, [token]);
+
+  // Add a new cycle
   const addCycle = async () => {
-    const startDate = prompt("Enter start date (YYYY-MM-DD)");
-    const endDate = prompt("Enter end date (YYYY-MM-DD)");
-    await axios.post(
-      "http://localhost:5000/api/cycles",
-      { startDate, endDate },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    const response = await axios.get("http://localhost:5000/api/cycles", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setCycleData(response.data);
+    const [startDate, endDate] = calendarDate;
+    try {
+      await axios.post(
+        "http://localhost:5001/api/cycles",
+        { startDate, endDate },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const response = await axios.get("http://localhost:5001/api/cycles", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCycleData(response.data);
+      setError(""); // Clear any previous errors
+    } catch (error) {
+      console.error("Failed to add cycle:", error);
+      setError("Failed to add cycle. Please try again.");
+    }
   };
+
+  // Predict next period and fertile window
+  const predictCycle = async () => {
+    try {
+      const response = await axios.get("http://localhost:5001/api/cycles/predict", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setPrediction(response.data);
+      setError(""); // Clear any previous errors
+    } catch (error) {
+      console.error("Failed to predict cycle:", error);
+      setError("Failed to predict cycle. Please try again.");
+    }
+  };
+
+  // Format data for the bar chart
+  const chartData = cycleData.map((cycle, index) => ({
+    name: `Cycle ${index + 1}`,
+    duration: cycle.cycleLength,
+  }));
 
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold">Cycle Tracker</h2>
-      <button onClick={addCycle} className="bg-blue-500 text-white p-2 rounded">
+      {error && <p className="text-red-500">{error}</p>}
+
+      {/* Calendar for Cycle Input */}
+      <div className="mt-4">
+        <h3 className="text-lg font-semibold">Select Cycle Dates</h3>
+        <Calendar
+          onChange={setCalendarDate}
+          value={calendarDate}
+          selectRange={true} // Enable date range selection
+        />
+      </div>
+
+      {/* Add Cycle Button */}
+      <button onClick={addCycle} className="bg-blue-500 text-white p-2 rounded mt-4">
         Add Cycle
       </button>
-      {/* Render cycle data here */}
+
+      {/* Predict Next Cycle Button */}
+      <button onClick={predictCycle} className="bg-green-500 text-white p-2 rounded mt-4 ml-2">
+        Predict Next Cycle
+      </button>
+
+      {/* Cycle Data Visualization */}
+      <div className="mt-6">
+        <h3 className="text-lg font-semibold">Cycle Lengths</h3>
+        <BarChart width={500} height={300} data={chartData}>
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+          <CartesianGrid stroke="#ccc" />
+          <Bar dataKey="duration" fill="#8884d8" />
+        </BarChart>
+      </div>
+
+      {/* Cycle Prediction */}
+      {prediction && (
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold">Predictions</h3>
+          <p>
+            <strong>Next Period:</strong> {new Date(prediction.nextPeriodDate).toDateString()}
+          </p>
+          <p>
+            <strong>Fertile Window:</strong> {new Date(prediction.fertileWindow.start).toDateString()} -{" "}
+            {new Date(prediction.fertileWindow.end).toDateString()}
+          </p>
+          <p>
+            <strong>Ovulation Date:</strong> {new Date(prediction.ovulationDate).toDateString()}
+          </p>
+        </div>
+      )}
     </div>
   );
 };

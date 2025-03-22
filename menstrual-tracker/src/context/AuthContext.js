@@ -1,60 +1,3 @@
-// import React, { createContext, useState } from "react";
-// import axios from "axios";
-
-// const AuthContext = createContext();
-
-// export const AuthProvider = ({ children }) => {
-//   const [token, setToken] = useState(localStorage.getItem("token") || "");
-
-//   // Login function
-//   const login = async (username, password) => {
-//     try {
-//       const response = await axios.post("http://localhost:5001/api/login", { username, password });
-//       localStorage.setItem("token", response.data.token); // Save token to localStorage
-//       setToken(response.data.token); // Update token state
-//       return response.data; // Return response data
-//     } catch (error) {
-//       console.error("Login error:", error);
-//       throw error; // Rethrow the error for the caller to handle
-//     }
-//   };
-
-//   // Register function
-//   const register = async (username, password) => {
-//     try {
-//       const response = await axios.post(
-//         "http://localhost:5001/api/register",
-//         { username, password },
-//         {
-//           headers: {
-//             "Content-Type": "application/json",
-//           },
-//         }
-//       );
-//       console.log(response.data); // Log the response for debugging
-//       return response.data; // Return response data
-//     } catch (error) {
-//       console.error("Registration error:", error);
-//       throw error; // Rethrow the error for the caller to handle
-//     }
-//   };
-
-//   // Logout function
-//   const logout = () => {
-//     localStorage.removeItem("token"); // Remove token from localStorage
-//     setToken(""); // Clear token state
-//   };
-
-//   return (
-//     <AuthContext.Provider value={{ token, login, register, logout }}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// };
-
-// export default AuthContext;
-
-
 import React, { createContext, useState } from "react";
 import axios from "axios";
 
@@ -62,48 +5,38 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const [userId, setUserId] = useState(localStorage.getItem("userId") || "");
 
-  // Login function
   const login = async (username, password) => {
     try {
       const response = await axios.post("http://localhost:5001/api/login", { username, password });
-      localStorage.setItem("token", response.data.token); // Save token to localStorage
-      setToken(response.data.token); // Update token state
-      return response.data; // Return response data
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userId", response.data.userId); 
+      setToken(response.data.token);
+      setUserId(response.data.userId);
     } catch (error) {
-      console.error("Login error:", error);
-      throw error; // Rethrow the error for the caller to handle
+      console.error("Login failed:", error);
     }
   };
 
-  // Register function
   const register = async (username, password) => {
     try {
-      const response = await axios.post(
-        "http://localhost:5001/api/register",
-        { username, password },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log(response.data); // Log the response for debugging
-      return response.data; // Return response data
+      await axios.post("http://localhost:5001/api/register", { username, password });
+      console.log("User registered successfully");
     } catch (error) {
-      console.error("Registration error:", error);
-      throw error; // Rethrow the error for the caller to handle
+      console.error("Registration failed:", error);
     }
   };
 
-  // Logout function
   const logout = () => {
-    localStorage.removeItem("token"); // Remove token from localStorage
-    setToken(""); // Clear token state
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    setToken("");
+    setUserId("");
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, register, logout }}>
+    <AuthContext.Provider value={{ token, userId, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
