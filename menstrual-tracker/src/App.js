@@ -5,6 +5,8 @@ import Register from "./components/Register";
 import Home from "./components/Home";
 import Navbar from "./components/Navbar";
 import { AuthProvider } from "./context/AuthContext";
+import Dashboard from "./components/Dashboard";
+import CycleTracker from "./components/CycleTracker";
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/cycle-tracker" element={<CycleTracker />} />
         </Routes>
       </Router>
     </AuthProvider>

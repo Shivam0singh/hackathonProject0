@@ -1,9 +1,12 @@
 .dashboard {
-    margin-top: 50px;
-  }
-  
-  .dashboard-title {
-    font-size: 2rem;
-    margin-bottom: 20px;
-  }
-  
+  margin-top: 50px;
+  background-color: #fafafa;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.dashboard-title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #333; 
+}

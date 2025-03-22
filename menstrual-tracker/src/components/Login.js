@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import AuthContext from "../context/AuthContext";
 import "../styles/Login.css";
 
@@ -6,12 +7,13 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { login } = useContext(AuthContext);
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await login(username, password);
-      alert("Login successful!");
+      navigate("/"); // Redirect to home page
     } catch (error) {
       alert("Login failed. Please check your credentials.");
     }

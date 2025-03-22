@@ -1,26 +1,24 @@
 .navbar {
-  background-color: #ff5a7d;
-  padding: 10px 20px;
+  background-color: #ff5a7d; 
+  padding: 15px 20px;
 }
 
 .navbar-list {
   list-style: none;
   display: flex;
-  justify-content: flex-start;
-  margin: 0;
-  padding: 0;
+  justify-content: flex-end;
 }
 
 .navbar-list li {
-  margin-right: 20px;
+  margin-left: 20px;
 }
 
 .navbar-list li a {
-  color: white;
+  color: #fff;
   text-decoration: none;
-  font-size: 18px;
+  font-weight: bold;
 }
 
 .navbar-list li a:hover {
-  text-decoration: underline;
+  color: #fafafa;
 }
