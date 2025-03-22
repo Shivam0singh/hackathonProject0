@@ -1,0 +1,29 @@
+.cycle-tracker {
+    margin-top: 30px;
+  }
+  
+  .cycle-tracker-title {
+    font-size: 1.5rem;
+  }
+  
+  .cycle-input {
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 1rem;
+    width: 200px;
+  }
+  
+  .cycle-button {
+    padding: 10px 20px;
+    background-color: #004d99;
+    color: white;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .cycle-button:hover {
+    background-color: #003366;
+  }
+  
