@@ -1,36 +1,45 @@
 import React, { useState, useContext } from "react";
 import AuthContext from "../context/AuthContext";
+import "../styles/Register.css";
 
 const Register = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { register } = useContext(AuthContext);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    register(username, password);
+    try {
+      await register(username, password);
+      alert("Registration successful!");
+    } catch (error) {
+      alert("Registration failed. Please try again.");
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4">
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        className="p-2 border rounded"
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="p-2 border rounded"
-      />
-      <button type="submit" className="bg-green-500 text-white p-2 rounded">
-        Register
-      </button>
-    </form>
+    <div className="register-container">
+      <h2>Register</h2>
+      <form onSubmit={handleSubmit} className="register-form">
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className="register-input"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="register-input"
+        />
+        <button type="submit" className="register-button">
+          Register
+        </button>
+      </form>
+    </div>
   );
 };
 
