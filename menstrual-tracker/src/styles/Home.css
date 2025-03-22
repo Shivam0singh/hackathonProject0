@@ -1,0 +1,16 @@
+.home {
+    text-align: center;
+    margin-top: 50px;
+  }
+  
+  .home-title {
+    font-size: 3rem;
+    color: #2e3b4e;
+  }
+  
+  .home-description {
+    font-size: 1.2rem;
+    color: #555;
+    margin-top: 20px;
+  }
+  
