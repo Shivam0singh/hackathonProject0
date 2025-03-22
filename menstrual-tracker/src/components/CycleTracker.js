@@ -4,13 +4,19 @@ import AuthContext from "../context/AuthContext";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import Modal from "react-modal";
+import "../styles/CycleTracker.css";
+
+Modal.setAppElement("#root"); // Set the root element for accessibility
 
 const CycleTracker = () => {
   const { token, userId } = useContext(AuthContext);
   const [cycleData, setCycleData] = useState([]);
   const [prediction, setPrediction] = useState(null);
-  const [calendarDate, setCalendarDate] = useState([new Date(), new Date()]); 
+  const [calendarDate, setCalendarDate] = useState([new Date(), new Date()]);
   const [error, setError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
   // Fetch cycle data
   useEffect(() => {
@@ -42,6 +48,7 @@ const CycleTracker = () => {
       });
       setCycleData(response.data);
       setError(""); // Clear any previous errors
+      setIsModalOpen(false); // Close the modal
     } catch (error) {
       console.error("Failed to add cycle:", error);
       setError("Failed to add cycle. Please try again.");
@@ -68,41 +75,89 @@ const CycleTracker = () => {
     duration: cycle.cycleLength,
   }));
 
+  // Highlight predicted dates on the calendar
+  const tileClassName = ({ date, view }) => {
+    if (view === "month" && prediction) {
+      const nextPeriodDate = new Date(prediction.nextPeriodDate);
+      const ovulationDate = new Date(prediction.ovulationDate);
+      const fertileStart = new Date(prediction.fertileWindow.start);
+      const fertileEnd = new Date(prediction.fertileWindow.end);
+
+      if (date.toDateString() === nextPeriodDate.toDateString()) {
+        return "highlight-next-period"; // Highlight next period date
+      } else if (date.toDateString() === ovulationDate.toDateString()) {
+        return "highlight-ovulation"; // Highlight ovulation date
+      } else if (date >= fertileStart && date <= fertileEnd) {
+        return "highlight-fertile"; // Highlight fertile window
+      }
+    }
+    return null;
+  };
+
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold">Cycle Tracker</h2>
+    <div className="cycle-tracker">
+      <h2 className="cycle-tracker-title">Cycle Tracker</h2>
       {error && <p className="text-red-500">{error}</p>}
 
-      {/* Calendar for Cycle Input */}
-      <div className="mt-4">
+      {/* Open Modal Button */}
+      <button onClick={() => setIsModalOpen(true)} className="cycle-button">
+        Add Cycle
+      </button>
+
+      {/* Modal for Date Input */}
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={() => setIsModalOpen(false)}
+        contentLabel="Add Cycle Dates"
+        className="modal"
+        overlayClassName="modal-overlay"
+      >
         <h3 className="text-lg font-semibold">Select Cycle Dates</h3>
         <Calendar
           onChange={setCalendarDate}
           value={calendarDate}
           selectRange={true} // Enable date range selection
         />
-      </div>
-
-      {/* Add Cycle Button */}
-      <button onClick={addCycle} className="bg-blue-500 text-white p-2 rounded mt-4">
-        Add Cycle
-      </button>
+        <button onClick={addCycle} className="cycle-button">
+          Save Cycle
+        </button>
+        <button onClick={() => setIsModalOpen(false)} className="cycle-button cancel">
+          Cancel
+        </button>
+      </Modal>
 
       {/* Predict Next Cycle Button */}
-      <button onClick={predictCycle} className="bg-green-500 text-white p-2 rounded mt-4 ml-2">
+      <button onClick={predictCycle} className="cycle-button predict">
         Predict Next Cycle
       </button>
 
+      {/* Toggle Cycle Details Button */}
+      <button onClick={() => setShowDetails(!showDetails)} className="cycle-button">
+        {showDetails ? "Hide Details" : "Show Details"}
+      </button>
+
       {/* Cycle Data Visualization */}
+      {showDetails && (
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold">Cycle Lengths</h3>
+          <BarChart width={500} height={300} data={chartData}>
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <CartesianGrid stroke="#ccc" />
+            <Bar dataKey="duration" fill="#8884d8" />
+          </BarChart>
+        </div>
+      )}
+
+      {/* Calendar with Highlighted Dates */}
       <div className="mt-6">
-        <h3 className="text-lg font-semibold">Cycle Lengths</h3>
-        <BarChart width={500} height={300} data={chartData}>
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <CartesianGrid stroke="#ccc" />
-          <Bar dataKey="duration" fill="#8884d8" />
-        </BarChart>
+        <h3 className="text-lg font-semibold">Cycle Calendar</h3>
+        <Calendar
+          onChange={setCalendarDate}
+          value={calendarDate}
+          tileClassName={tileClassName} // Add custom classes for highlighted dates
+        />
       </div>
 
       {/* Cycle Prediction */}
