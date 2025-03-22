@@ -7,6 +7,7 @@ import Navbar from "./components/Navbar";
 import { AuthProvider } from "./context/AuthContext";
 import Dashboard from "./components/Dashboard";
 import CycleTracker from "./components/CycleTracker";
+import NutritionGuide from "./components/NutritionGuide";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/cycle-tracker" element={<CycleTracker />} />
+          <Route path="/nutrition" element={<NutritionGuide />} />
         </Routes>
       </Router>
     </AuthProvider>
