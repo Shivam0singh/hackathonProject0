@@ -3,16 +3,16 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import Modal from "react-modal";
 import "../styles/EducationalInsights.css";
 
-Modal.setAppElement("#root"); // Set the root element for accessibility
+Modal.setAppElement("#root"); 
 
 const EducationalInsights = () => {
-  const [topic, setTopic] = useState("cramps"); // Default topic
-  const [insights, setInsights] = useState([]); // Store insights as an array of objects
+  const [topic, setTopic] = useState("cramps"); 
+  const [insights, setInsights] = useState([]); 
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedInsight, setSelectedInsight] = useState("");
 
-  const API_KEY = process.env.REACT_APP_GEMINI_API_KEY; // Replace with your API key
+  const API_KEY = process.env.REACT_APP_GEMINI_API_KEY; 
   const genAI = new GoogleGenerativeAI(API_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 

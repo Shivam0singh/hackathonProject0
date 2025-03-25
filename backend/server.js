@@ -11,12 +11,12 @@ const PORT = process.env.PORT || 5001;
 const mongoUrl = process.env.MONGO_URI;
 const Cycle = require("./models/Cycle");
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // Ensure this is set in your .env file
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY; 
 
-// Middleware
+
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(express.json());
-// Middleware to verify JWT token
+
 const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
@@ -26,7 +26,7 @@ const authenticate = (req, res, next) => {
     if (err) {
       return res.status(401).json({ error: "Invalid token" });
     }
-    req.user = decoded; // Attach user data to the request object
+    req.user = decoded; 
     next();
   });
 };
@@ -39,6 +39,8 @@ mongoose.connect(mongoUrl)
     console.error("Error connecting to MongoDB:", err);
     process.exit(1);
   });
+
+
 // Routes
 // Register a new user
 app.post("/api/register", async (req, res) => {
@@ -47,17 +49,18 @@ app.post("/api/register", async (req, res) => {
   try {
     const user = new User({ username, password });
     await user.save();
-    console.log("User saved to database:", user); // Log the saved user
+    console.log("User saved to database:", user); 
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
-    console.error("Registration error:", error); // Log the error
-    if (error.code === 11000) { // Duplicate key error (username already exists)
+    console.error("Registration error:", error); 
+    if (error.code === 11000) { 
       res.status(400).json({ error: "Username already exists" });
     } else {
       res.status(500).json({ error: "Internal server error" });
     }
   }
 });
+
 // Login a user
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
@@ -73,6 +76,7 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 // Protected route example
 app.get("/api/protected", (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
@@ -87,13 +91,12 @@ app.get("/api/protected", (req, res) => {
 // Add a new cycle
 app.post("/api/cycles", authenticate, async (req, res) => {
   const { startDate, endDate } = req.body;
-  const userId = req.user.userId; // Extract userId from the token
+  const userId = req.user.userId;
   try {
     const cycleLength = Math.floor(
       (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)
-    ); // Calculate cycle length in days
-    const periodLength = cycleLength; // For simplicity, period length = cycle length
-    // Determine the current phase (simplified logic)
+    ); 
+    const periodLength = cycleLength; 
     const today = new Date();
     const daysSinceStart = Math.floor((today - new Date(startDate)) / (1000 * 60 * 60 * 24));
     let phase;
@@ -113,19 +116,21 @@ app.post("/api/cycles", authenticate, async (req, res) => {
     res.status(400).json({ error: "Failed to add cycle" });
   }
 });
+
 // Get all cycles for a user
 app.get("/api/cycles", authenticate, async (req, res) => {
-  const userId = req.user.userId; // Extract userId from the token
+  const userId = req.user.userId; 
   try {
-    const cycles = await Cycle.find({ userId }).sort({ startDate: -1 }); // Sort by most recent
+    const cycles = await Cycle.find({ userId }).sort({ startDate: -1 }); 
     res.json(cycles);
   } catch (error) {
     res.status(400).json({ error: "Failed to fetch cycles" });
   }
 });
+
 // Predict next period and fertile/ovulation windows
 app.get("/api/cycles/predict", authenticate, async (req, res) => {
-  const userId = req.user.userId; // Extract userId from the token
+  const userId = req.user.userId; 
   try {
     const cycles = await Cycle.find({ userId }).sort({ startDate: -1 });
     if (cycles.length === 0) {
@@ -137,13 +142,13 @@ app.get("/api/cycles/predict", authenticate, async (req, res) => {
     const nextPeriodDate = new Date(lastCycle.endDate);
     nextPeriodDate.setDate(nextPeriodDate.getDate() + averageCycleLength);
     const fertileWindowStart = new Date(nextPeriodDate);
-    fertileWindowStart.setDate(fertileWindowStart.getDate() - 14); // Ovulation typically occurs 14 days before the next period
+    fertileWindowStart.setDate(fertileWindowStart.getDate() - 14); 
     const fertileWindowEnd = new Date(fertileWindowStart);
-    fertileWindowEnd.setDate(fertileWindowEnd.getDate() + 5); // Fertile window is ~5 days
+    fertileWindowEnd.setDate(fertileWindowEnd.getDate() + 5); 
     res.json({
       nextPeriodDate,
       fertileWindow: { start: fertileWindowStart, end: fertileWindowEnd },
-      ovulationDate: fertileWindowStart, // Ovulation occurs at the start of the fertile window
+      ovulationDate: fertileWindowStart, 
     });
   } catch (error) {
     res.status(400).json({ error: "Failed to predict cycle" });
@@ -152,10 +157,10 @@ app.get("/api/cycles/predict", authenticate, async (req, res) => {
 
 // Get moon phase for a specific date
 app.get("/api/moon-phase", async (req, res) => {
-  const { date } = req.query; // Date in YYYY-MM-DD format
+  const { date } = req.query;
   try {
     const response = await axios.get(`https://api.farmsense.net/v1/moonphases/?d=${date}`);
-    const moonPhase = response.data[0].Phase; // Extract moon phase
+    const moonPhase = response.data[0].Phase; 
     res.json({ moonPhase });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch moon phase" });

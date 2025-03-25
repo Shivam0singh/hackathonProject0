@@ -1,12 +1,24 @@
 .navbar {
-  background-color: #ff5a7d; 
+  background-color: #ff5a7d;
   padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Space between Luna and navbar links */
+}
+
+.navbar-brand {
+  color: #fff;
+  font-size: 24px;
+  font-weight: bold;
+  text-decoration: none;
 }
 
 .navbar-list {
   list-style: none;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  margin: 0;
+  padding: 0;
 }
 
 .navbar-list li {
@@ -23,3 +35,19 @@
   color: #fafafa;
 }
 
+/* Logout Button Styling */
+.logout-button {
+  background: none;
+  border: 2px solid #fff;
+  color: #fff;
+  padding: 8px 16px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #fff;
+  color: #ff5a7d;
+}

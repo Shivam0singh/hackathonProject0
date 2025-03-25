@@ -3,8 +3,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import "../styles/NutritionGuide.css";
 
 const NutritionGuide = () => {
-  const [phase, setPhase] = useState("menstrual"); // Default phase
-  const [meals, setMeals] = useState([]); // Stores meal cards
+  const [phase, setPhase] = useState("menstrual"); 
+  const [meals, setMeals] = useState([]); 
   const [loading, setLoading] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState(null);
 
@@ -16,15 +16,15 @@ const NutritionGuide = () => {
   const getNutritionTips = async () => {
     setLoading(true);
     const prompt = `Provide diet recommendations for the ${phase} phase of the menstrual cycle. Organize the recommendations into Breakfast, Lunch, Dinner, and Snacks. For each meal, provide a one-line explanation of why it's beneficial.`;
-    console.log("Sending prompt to Gemini API:", prompt); // Log the prompt
+    console.log("Sending prompt to Gemini API:", prompt); 
   
     try {
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
-      console.log("API Response:", text); // Log the API response
+      console.log("API Response:", text); 
   
-      const formattedMeals = formatMeals(text); // Format the response into meal cards
+      const formattedMeals = formatMeals(text); 
       setMeals(formattedMeals);
     } catch (error) {
       console.error("Error fetching nutrition tips:", error);
@@ -34,16 +34,14 @@ const NutritionGuide = () => {
     }
   };
 
-  // Function to format the API response into meal cards
   const formatMeals = (text) => {
-    console.log("Raw API Response:", text); // Log the raw response
+    console.log("Raw API Response:", text); 
   
     const meals = [];
     const lines = text.split("\n").filter((line) => line.trim() !== "");
   
     let currentMeal = null;
     lines.forEach((line) => {
-      // Remove Markdown formatting (e.g., **, *)
       line = line.replace(/\*\*/g, "").replace(/\*/g, "").trim();
   
       if (line.startsWith("Breakfast")) {
@@ -63,7 +61,7 @@ const NutritionGuide = () => {
       }
     });
   
-    console.log("Formatted Meals:", meals); // Log the formatted meals
+    console.log("Formatted Meals:", meals); 
     return meals;
   };
 
