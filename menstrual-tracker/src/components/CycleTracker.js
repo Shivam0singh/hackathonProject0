@@ -34,7 +34,7 @@ const CycleTracker = () => {
   useEffect(() => {
     const fetchCycles = async () => {
       try {
-        const response = await axios.get("http://localhost:5001/api/cycles", {
+        const response = await axios.get("https://luna-backend-56fr.onrender.com/api/cycles", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setCycleData(response.data);
@@ -55,7 +55,7 @@ const CycleTracker = () => {
   const fetchMoonPhase = async (date) => {
     try {
       const response = await axios.get(
-        `http://localhost:5001/api/moon-phase?date=${date}`
+        `https://luna-backend-56fr.onrender.com/api/moon-phase?date=${date}`
       );
       return response.data.moonPhase;
     } catch (error) {
@@ -72,7 +72,7 @@ const CycleTracker = () => {
         ? await fetchMoonPhase(startDate.toISOString().split("T")[0])
         : null;
       const response = await axios.post(
-        "http://localhost:5001/api/cycles",
+        "https://luna-backend-56fr.onrender.com/api/cycles",
         { startDate, endDate, moonPhase },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -89,7 +89,7 @@ const CycleTracker = () => {
   const predictCycle = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5001/api/cycles/predict",
+        "https://luna-backend-56fr.onrender.com/api/cycles/predict",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -106,7 +106,7 @@ const CycleTracker = () => {
   const fetchAstrologySuggestion = async (zodiacSign, cyclePhase) => {
     try {
       const response = await axios.post(
-        "http://localhost:5001/api/astrology-suggestions",
+        "https://luna-backend-56fr.onrender.com/api/astrology-suggestions",
         { zodiacSign, cyclePhase },
         {
           headers: { Authorization: `Bearer ${token}` },
