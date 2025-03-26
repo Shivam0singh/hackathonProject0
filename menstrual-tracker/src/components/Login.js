@@ -4,7 +4,7 @@ import AuthContext from "../context/AuthContext";
 import "../styles/Login.css";
 
 const Login = () => {
-  const [username, setUsername] = useState("");
+  const [identifier, setIdentifier] = useState(""); 
   const [password, setPassword] = useState("");
   const { login } = useContext(AuthContext);
   const navigate = useNavigate(); 
@@ -12,7 +12,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(username, password);
+      await login(identifier, password);
       navigate("/");
     } catch (error) {
       alert("Login failed. Please check your credentials.");
@@ -25,9 +25,9 @@ const Login = () => {
       <form onSubmit={handleSubmit} className="login-form">
         <input
           type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Username or Email"
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
           className="login-input"
         />
         <input

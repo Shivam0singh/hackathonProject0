@@ -44,31 +44,40 @@ mongoose.connect(mongoUrl)
 // Routes
 // Register a new user
 app.post("/api/register", async (req, res) => {
-  const { username, password } = req.body;
-  console.log("Register request received:", { username, password });
+  const { username, email, password } = req.body;
+  console.log("Register request received:", { username, email, password });
   try {
-    const user = new User({ username, password });
+    const user = new User({ username, email, password });
     await user.save();
-    console.log("User saved to database:", user); 
+    console.log("User saved to database:", user);
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
-    console.error("Registration error:", error); 
-    if (error.code === 11000) { 
-      res.status(400).json({ error: "Username already exists" });
+    console.error("Registration error:", error);
+    if (error.code === 11000) {
+      // Handle duplicate email or username
+      const field = Object.keys(error.keyPattern)[0];
+      res.status(400).json({ error: `${field} already exists` });
     } else {
       res.status(500).json({ error: "Internal server error" });
     }
   }
 });
 
+
 // Login a user
 app.post("/api/login", async (req, res) => {
-  const { username, password } = req.body;
+  const { identifier, password } = req.body;
   try {
-    const user = await User.findOne({ username });
+    // Find user by username or email
+    const user = await User.findOne({
+      $or: [{ username: identifier }, { email: identifier }],
+    });
+
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
+
+    // Generate a JWT token
     const token = jwt.sign({ userId: user._id }, "your-secret-key", { expiresIn: "1h" });
     res.json({ token });
   } catch (error) {
@@ -76,6 +85,7 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 // Protected route example
 app.get("/api/protected", (req, res) => {

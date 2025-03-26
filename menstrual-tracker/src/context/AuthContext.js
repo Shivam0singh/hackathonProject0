@@ -2,14 +2,14 @@ import React, { createContext, useState } from "react";
 import axios from "axios";
 
 const AuthContext = createContext();
-  
+
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
   const [userId, setUserId] = useState(localStorage.getItem("userId") || "");
 
-  const login = async (username, password) => {
+  const login = async (identifier, password) => {
     try {
-      const response = await axios.post("https://luna-backend-56fr.onrender.com/api/login", { username, password });
+      const response = await axios.post("https://luna-backend-56fr.onrender.com/api/login", { identifier, password });
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("userId", response.data.userId); 
       setToken(response.data.token);
@@ -19,9 +19,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (username, password) => {
+  const register = async (username, email, password) => {
     try {
-      await axios.post("https://luna-backend-56fr.onrender.com/api/register", { username, password });
+      await axios.post("https://luna-backend-56fr.onrender.com/api/register", { username, email, password });
       console.log("User registered successfully");
     } catch (error) {
       console.error("Registration failed:", error);
