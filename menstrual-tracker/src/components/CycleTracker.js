@@ -34,8 +34,7 @@ const CycleTracker = () => {
   useEffect(() => {
     const fetchCycles = async () => {
       try {
-        // const response = await axios.get("https://luna-backend-56fr.onrender.com/api/cycles", {
-          const response = await axios.get("http://localhost:5001/api/cycles", {
+        const response = await axios.get("https://luna-backend-56fr.onrender.com/api/cycles", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setCycleData(response.data);

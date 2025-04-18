@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [userId, setUserId] = useState(localStorage.getItem("userId") || "");
 
   const login = async (identifier, password) => {
-    try {
+    try { 
       const response = await axios.post("https://luna-backend-56fr.onrender.com/api/login", { identifier, password });
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("userId", response.data.userId); 
