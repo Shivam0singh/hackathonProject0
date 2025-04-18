@@ -17,15 +17,35 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 // app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 const allowedOrigins = [
   'https://askluna.info',
-  'http://localhost:3000' 
+  'http://localhost:3000',
+  'https://www.askluna.info'
 ];
 
 app.use(
   cors({
-    origin: allowedOrigins,
-    credentials: true 
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
   })
 );
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
 app.use(express.json());
 
 const authenticate = (req, res, next) => {
@@ -54,6 +74,9 @@ mongoose.connect(mongoUrl)
 
 // Routes
 // Register a new user
+// Handle preflight requests
+app.options('*', cors());
+
 app.post("/api/register", async (req, res) => {
   const { username, email, password } = req.body;
   console.log("Register request received:", { username, email, password });
