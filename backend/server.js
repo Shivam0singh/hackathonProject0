@@ -14,7 +14,18 @@ const Cycle = require("./models/Cycle");
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY; 
 
 
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+// app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+const allowedOrigins = [
+  'https://askluna.info',
+  'http://localhost:3000' 
+];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true 
+  })
+);
 app.use(express.json());
 
 const authenticate = (req, res, next) => {
