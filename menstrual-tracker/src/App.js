@@ -9,6 +9,7 @@ import Dashboard from "./components/Dashboard";
 import CycleTracker from "./components/CycleTracker";
 import NutritionGuide from "./components/NutritionGuide";
 import EducationalInsights from "./components/EducationalInsights";
+import EVA from "./components/EVA";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/cycle-tracker" element={<CycleTracker />} />
           <Route path="/nutrition" element={<NutritionGuide />} />
           <Route path="/insights" element={<EducationalInsights />} />
+          <Route path="/eva" element={<EVA />} />
         </Routes>
       </Router>
     </AuthProvider>
