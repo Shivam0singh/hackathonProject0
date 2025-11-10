@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import Modal from "react-modal";
 import "../styles/NutritionGuide.css";
 
+Modal.setAppElement("#root");
+
 const NutritionGuide = () => {
-  const [phase, setPhase] = useState("menstrual"); 
-  const [meals, setMeals] = useState([]); 
+  const [phase, setPhase] = useState("menstrual");
+  const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const API_KEY = process.env.REACT_APP_GEMINI_API_KEY; 
 
@@ -69,6 +73,24 @@ const NutritionGuide = () => {
     setPhase(e.target.value);
   };
 
+  // Function to count words in text
+  const countWords = (text) => {
+    return text.trim().split(/\s+/).length;
+  };
+
+  // Function to truncate text to specified word count
+  const truncateText = (text, wordLimit = 50) => {
+    const words = text.trim().split(/\s+/);
+    if (words.length <= wordLimit) return text;
+    return words.slice(0, wordLimit).join(' ') + '...';
+  };
+
+  // Function to open modal with full meal content
+  const openMealModal = (meal) => {
+    setSelectedMeal(meal);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="nutrition-guide">
       <h2>Nutrition Guide</h2>
@@ -86,16 +108,52 @@ const NutritionGuide = () => {
       </div>
       <div className="meal-cards">
         {meals.length > 0 ? (
-          meals.map((meal, index) => (
-            <div key={index} className="meal-card">
-              <h3>{meal.type}</h3>
-              <p>{meal.description}</p>
-            </div>
-          ))
+          meals.map((meal, index) => {
+            const wordCount = countWords(meal.description);
+            const isLongContent = wordCount > 50;
+            const displayText = isLongContent ? truncateText(meal.description) : meal.description;
+
+            return (
+              <div key={index} className="meal-card">
+                <h3>{meal.type}</h3>
+                <p>{displayText}</p>
+                {isLongContent && (
+                  <button
+                    className="read-more-btn"
+                    onClick={() => openMealModal(meal)}
+                  >
+                    Read More
+                  </button>
+                )}
+              </div>
+            );
+          })
         ) : (
           <p>Select a phase and click "Get Nutrition Tips" to see recommendations.</p>
         )}
       </div>
+
+      {/* Modal for Full Meal Content */}
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={() => setIsModalOpen(false)}
+        contentLabel="Full Meal Details"
+        className="nutrition-modal"
+        overlayClassName="nutrition-modal-overlay"
+      >
+        {selectedMeal && (
+          <div className="modal-content">
+            <h3>{selectedMeal.type} - Detailed Information</h3>
+            <p>{selectedMeal.description}</p>
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="close-modal-btn"
+            >
+              Close
+            </button>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

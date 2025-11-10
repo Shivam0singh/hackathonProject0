@@ -1,15 +1,91 @@
+/* Import elegant fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
 .navbar {
-  background-color: #ff5a7d;
-  padding: 15px 20px;
+  background-color: black;
+  padding: 20px 30px;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Space between Luna and navbar links */
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(236, 72, 153, 0.1);
+  box-shadow: 0 4px 20px rgba(236, 72, 153, 0.1);
+}
+
+/* Gradient effect for non-home pages - no shadow */
+.navbar-gradient {
+  background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%) !important;
+  border-bottom: 1px solid rgba(236, 72, 153, 0.1);
+}
+
+/* Dark text for navigation links on gradient background */
+.navbar-gradient .navbar-list li a {
+  color: #1f2937 !important;
+  font-weight: 600;
+}
+
+.navbar-gradient .navbar-list li a:hover {
+  color: #be185d !important;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+
+/* Starry background effect for navbar */
+.navbar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(1px 1px at 25px 15px, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 65px 25px, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 110px 10px, rgba(236, 72, 153, 0.3), transparent),
+    radial-gradient(1px 1px at 150px 20px, rgba(255, 255, 255, 0.7), transparent);
+  background-repeat: repeat;
+  background-size: 200px 40px;
+  animation: navbarSparkle 15s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes navbarSparkle {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translateX(0);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translateX(10px);
+  }
 }
 
 .navbar-brand {
-  color: #fff;
-  font-size: 24px;
-  font-weight: bold;
+  color: #be185d;
+  font-size: 28px;
+  font-weight: 700;
+  font-family: 'Playfair Display', serif;
+  text-decoration: none;
+  background: linear-gradient(135deg, #ec4899, #be185d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.navbar-brand:hover {
+  transform: translateY(-1px);
+  filter: drop-shadow(0 4px 8px rgba(236, 72, 153, 0.3));
+  text-decoration: none;
+}
+
+.navbar-brand:visited {
+  color: inherit;
   text-decoration: none;
 }
 
@@ -19,35 +95,92 @@
   align-items: center;
   margin: 0;
   padding: 0;
+  position: relative;
+  z-index: 2;
 }
 
 .navbar-list li {
-  margin-left: 20px;
+  margin-left: 25px;
 }
 
 .navbar-list li a {
   color: #fff;
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.navbar-list li a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(190, 24, 93, 0.1));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 20px;
+}
+
+.navbar-list li a:hover::before {
+  opacity: 1;
 }
 
 .navbar-list li a:hover {
-  color: #fafafa;
+  color: #be185d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.2);
 }
 
 /* Logout Button Styling */
 .logout-button {
-  background: none;
-  border: 2px solid #fff;
-  color: #fff;
-  padding: 8px 16px;
-  font-weight: bold;
-  border-radius: 5px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(252, 231, 243, 0.8));
+  border: 2px solid rgba(236, 72, 153, 0.3);
+  color: #be185d;
+  padding: 10px 20px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  border-radius: 25px;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.logout-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #ec4899, #be185d);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 25px;
+}
+
+.logout-button:hover::before {
+  opacity: 1;
 }
 
 .logout-button:hover {
-  background-color: #fff;
-  color: #ff5a7d;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(236, 72, 153, 0.3);
+  border-color: #ec4899;
+}
+
+.logout-button span {
+  position: relative;
+  z-index: 1;
 }
