@@ -10,12 +10,19 @@ export const AuthProvider = ({ children }) => {
   const login = async (identifier, password) => {
     try {
       const response = await axios.post("https://luna-backend-56fr.onrender.com/api/login", { identifier, password });
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("userId", response.data.userId); 
-      setToken(response.data.token);
-      setUserId(response.data.userId);
+      const token = response.data.token;
+      
+      // Decode JWT token to get userId (without verifying signature, just for client use)
+      const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+      const extractedUserId = tokenPayload.userId;
+      
+      localStorage.setItem("token", token);
+      localStorage.setItem("userId", extractedUserId);
+      setToken(token);
+      setUserId(extractedUserId);
     } catch (error) {
       console.error("Login failed:", error);
+      throw error; // Re-throw so Login component can handle it
     }
   };
 
