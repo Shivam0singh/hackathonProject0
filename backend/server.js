@@ -10,7 +10,7 @@ const Cycle = require("./models/Cycle");
 
 const app = express();
 const PORT = process.env.PORT || 5001;
-const mongoUrl = process.env.MONGO_URI || process.env.MONGO_API; // Handle both variable names
+const mongoUrl = process.env.MONGO_URI || process.env.MONGO_API;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.GEMINI_API;
 
 // Log environment variables (without exposing sensitive data)
@@ -20,43 +20,24 @@ console.log("- MONGO_URI exists:", !!mongoUrl);
 console.log("- GEMINI_API_KEY exists:", !!GEMINI_API_KEY);
 console.log("- CORS_ORIGIN:", process.env.CORS_ORIGIN);
 
-// CORS configuration - MUST be before other middleware
-const allowedOrigins = [
-  "https://askluna.info",
-  "https://www.askluna.info",
-  "http://localhost:3000",
-  "http://localhost:5173"
-];
-
-// Add CORS_ORIGIN from environment if it exists
-if (process.env.CORS_ORIGIN) {
-  allowedOrigins.push(process.env.CORS_ORIGIN);
-  // Also add with trailing slash
-  allowedOrigins.push(`${process.env.CORS_ORIGIN}/`);
-}
-
-console.log("Allowed CORS origins:", allowedOrigins);
-
-// Use the cors package with proper configuration
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    console.log("Request origin:", origin);
-    
-    if (allowedOrigins.includes(origin)) {
-      console.log("✓ Origin allowed:", origin);
-      callback(null, true);
-    } else {
-      console.log("✗ Origin blocked:", origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+// SIMPLIFIED CORS - This will work reliably on Render
+const corsOptions = {
+  origin: [
+    "https://askluna.info",
+    "https://www.askluna.info",
+    "http://localhost:3000",
+    "http://localhost:5173"
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200
+};
+
+console.log("CORS Configuration:", corsOptions);
+
+// Apply CORS middleware BEFORE other middleware
+app.use(cors(corsOptions));
 
 // Body parser middleware
 app.use(express.json());
@@ -89,14 +70,24 @@ app.get("/", (req, res) => {
   res.json({ 
     status: "Server is running",
     timestamp: new Date().toISOString(),
-    corsOrigins: allowedOrigins
+    corsOrigins: corsOptions.origin
+  });
+});
+
+// CORS test endpoint
+app.get("/api/test-cors", (req, res) => {
+  res.json({ 
+    message: "CORS is working!",
+    origin: req.headers.origin,
+    timestamp: new Date().toISOString()
   });
 });
 
 // Register a new user
 app.post("/api/register", async (req, res) => {
   const { username, email, password } = req.body;
-  console.log("Register request received:", { username, email, password: "***" });
+  console.log("Register request received from origin:", req.headers.origin);
+  console.log("Register data:", { username, email, password: "***" });
   
   try {
     const user = new User({ username, email, password });
@@ -117,6 +108,8 @@ app.post("/api/register", async (req, res) => {
 // Login a user
 app.post("/api/login", async (req, res) => {
   const { identifier, password } = req.body;
+  console.log("Login request from origin:", req.headers.origin);
+  
   try {
     const user = await User.findOne({
       $or: [{ username: identifier }, { email: identifier }],
@@ -167,9 +160,7 @@ app.post("/api/cycles", authenticate, async (req, res) => {
       cycleLength = Math.floor(
         (cycleStartDate - lastCycleStart) / (1000 * 60 * 60 * 24)
       );
-      console.log(`Calculated cycle length: ${cycleLength} days`);
       if (cycleLength < 15 || cycleLength > 60) {
-        console.log(`Cycle length ${cycleLength} is out of range, setting to null`);
         cycleLength = null;
       }
     }
@@ -181,7 +172,6 @@ app.post("/api/cycles", authenticate, async (req, res) => {
       );
       if (calculatedLength >= 15 && calculatedLength <= 60) {
         await Cycle.findByIdAndUpdate(previousCycles[0]._id, { cycleLength: calculatedLength });
-        console.log(`Updated previous cycle length to ${calculatedLength} days`);
       }
     }
     
@@ -315,7 +305,6 @@ app.post("/api/cycles/update-lengths", authenticate, async (req, res) => {
       }
     }
     
-    console.log(`Updated ${updated} cycles with missing cycle lengths`);
     res.json({ updated, message: `Updated ${updated} cycles` });
   } catch (error) {
     console.error("Error updating cycle lengths:", error);
@@ -384,7 +373,6 @@ function calculateMoonPhase(date) {
 // Get moon phase
 app.get("/api/moon-phase", async (req, res) => {
   const { date } = req.query;
-  console.log("Fetching moon phase for date:", date);
   
   try {
     const response = await axios.get(`https://api.farmsense.net/v1/moonphases/?d=${date}`, {
@@ -393,20 +381,15 @@ app.get("/api/moon-phase", async (req, res) => {
     
     if (response.data && response.data.length > 0 && response.data[0].Phase) {
       const moonPhase = response.data[0].Phase;
-      console.log("Moon phase from API:", moonPhase);
       res.json({ moonPhase });
     } else {
       throw new Error("No moon phase data in response");
     }
   } catch (error) {
-    console.error("Moon phase API error:", error.message);
-    
     try {
       const moonPhase = calculateMoonPhase(new Date(date));
-      console.log("Using fallback moon phase:", moonPhase);
       res.json({ moonPhase });
     } catch (fallbackError) {
-      console.error("Fallback moon phase calculation failed:", fallbackError);
       res.status(500).json({ error: "Failed to fetch moon phase" });
     }
   }
@@ -452,5 +435,6 @@ app.post("/api/astrology-suggestions", authenticate, async (req, res) => {
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`✓ Server running on http://localhost:${PORT}`);
+  console.log(`✓ Server running on port ${PORT}`);
+  console.log(`✓ CORS enabled for:`, corsOptions.origin);
 });
