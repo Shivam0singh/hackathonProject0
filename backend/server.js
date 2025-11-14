@@ -274,8 +274,7 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 const allowedOrigins = [
   'https://askluna.info',
-  'https://www.askluna.info',
-  'http://localhost:3000'
+  'https://www.askluna.info'
 ];
 
 // Enhanced CORS configuration
