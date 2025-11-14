@@ -15,9 +15,10 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // CORS configuration - allow both development and production origins
 const allowedOrigins = [
-  "http://localhost:3000",
-  process.env.CORS_ORIGIN,     // <-- uses your .env value
-  "https://www.askluna.info",  // sometimes www is required too
+  process.env.CORS_ORIGIN,         
+  `${process.env.CORS_ORIGIN}/`,   
+  "https://askluna.info",
+  "https://www.askluna.info",
 ];
 
 app.use((req, res, next) => {
