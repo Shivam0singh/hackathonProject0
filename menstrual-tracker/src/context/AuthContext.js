@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (identifier, password) => {
     try {
-      const response = await axios.post("http://localhost:5001/api/login", { identifier, password });
+      const response = await axios.post("https://luna-backend-56fr.onrender.com/api/login", { identifier, password });
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("userId", response.data.userId); 
       setToken(response.data.token);
@@ -91,7 +91,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (username, email, password) => {
     try {
-      await axios.post("http://localhost:5001/api/register", { username, email, password });
+      await axios.post("https://luna-backend-56fr.onrender.com/api/register", { username, email, password });
       console.log("User registered successfully");
     } catch (error) {
       console.error("Registration failed:", {
