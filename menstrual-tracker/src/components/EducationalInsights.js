@@ -6,11 +6,13 @@ import "../styles/EducationalInsights.css";
 Modal.setAppElement("#root"); 
 
 const EducationalInsights = () => {
-  const [topic, setTopic] = useState("cramps"); 
-  const [insights, setInsights] = useState([]); 
+  const [topic, setTopic] = useState("cramps");
+  const [insights, setInsights] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedInsight, setSelectedInsight] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   const API_KEY = process.env.REACT_APP_GEMINI_API_KEY; 
   const genAI = new GoogleGenerativeAI(API_KEY);
@@ -94,12 +96,25 @@ const EducationalInsights = () => {
     return formattedInsights;
   };
 
+  // Calculate pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentInsights = insights.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(insights.length / itemsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const handleTopicChange = (e) => {
+    setTopic(e.target.value);
+    setCurrentPage(1); // Reset to first page when topic changes
+  };
+
   return (
     <div className="educational-insights">
       <h2>Educational Insights</h2>
       <div className="topic-selector">
         <label htmlFor="topic">Select a Topic:</label>
-        <select id="topic" value={topic} onChange={(e) => setTopic(e.target.value)}>
+        <select id="topic" value={topic} onChange={handleTopicChange}>
           <option value="cramps">Managing Cramps</option>
           <option value="mood">Hormonal Changes & Mood</option>
           <option value="myths">Myths and Facts</option>
@@ -109,15 +124,50 @@ const EducationalInsights = () => {
         </button>
       </div>
 
-      {/* Insight List with Icons */}
-      <div className="insight-list">
-        {insights.map((insight) => (
-          <div key={insight.id} className="insight-item">
-            <span className="insight-icon">•</span> {/* Icon (bullet point) */}
-            <p>{insight.content}</p>
-          </div>
-        ))}
+      {/* Insight Cards with Pagination */}
+      <div className="insight-cards">
+        {currentInsights.length > 0 ? (
+          currentInsights.map((insight) => (
+            <div key={insight.id} className="insight-card">
+              <div className="insight-icon">💡</div>
+              <p>{insight.content}</p>
+            </div>
+          ))
+        ) : (
+          <p>Select a topic and click "Get Insights" to see educational content.</p>
+        )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            onClick={() => paginate(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="pagination-btn prev"
+          >
+            ← Previous
+          </button>
+          <div className="page-numbers">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
+              <button
+                key={number}
+                onClick={() => paginate(number)}
+                className={`page-number ${currentPage === number ? 'active' : ''}`}
+              >
+                {number}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => paginate(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="pagination-btn next"
+          >
+            Next →
+          </button>
+        </div>
+      )}
 
       {/* Modal for Full Insight */}
       <Modal

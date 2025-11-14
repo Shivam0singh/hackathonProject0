@@ -72,18 +72,8 @@ export const AuthProvider = ({ children }) => {
   const [userId, setUserId] = useState(localStorage.getItem("userId") || "");
 
   const login = async (identifier, password) => {
-    try { 
-      const response = await axios.post(
-        "https://luna-backend-56fr.onrender.com/api/login", 
-        { identifier, password },
-        {
-          withCredentials: true,
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
-        }
-      );
+    try {
+      const response = await axios.post("http://localhost:5001/api/login", { identifier, password });
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("userId", response.data.userId); 
       setToken(response.data.token);
@@ -101,20 +91,8 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (username, email, password) => {
     try {
-      const response = await axios.post(
-        "https://luna-backend-56fr.onrender.com/api/register", 
-        { username, email, password },
-        {
-          withCredentials: true,
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          timeout: 10000
-        }
-      );
-      console.log("Registration successful:", response.data);
-      return response.data;
+      await axios.post("http://localhost:5001/api/register", { username, email, password });
+      console.log("User registered successfully");
     } catch (error) {
       console.error("Registration failed:", {
         message: error.message,

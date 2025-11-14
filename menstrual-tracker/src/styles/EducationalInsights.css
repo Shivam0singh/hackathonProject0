@@ -1,72 +1,298 @@
+/* Import elegant fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
 .educational-insights {
-    padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
-    text-align: center;
+  padding: 40px;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 20px 60px rgba(236, 72, 153, 0.1);
+  margin-top: 30px;
+  margin-bottom: 80px;
+}
+
+/* Starry background effect */
+.educational-insights::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(2px 2px at 30px 40px, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 80px 20px, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 120px 60px, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(2px 2px at 200px 30px, rgba(255, 255, 255, 0.9), transparent);
+  background-repeat: repeat;
+  background-size: 250px 120px;
+  animation: twinkle 18s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes twinkle {
+  0%, 100% {
+    transform: translateX(0) scale(1);
+    opacity: 0.8;
   }
-  
-  .topic-selector {
-    margin-bottom: 20px;
+  33% {
+    transform: translateX(10px) scale(1.1);
+    opacity: 1;
   }
-  
-  .topic-selector label {
-    margin-right: 10px;
-    font-size: 16px;
+  66% {
+    transform: translateX(-5px) scale(0.9);
+    opacity: 0.9;
   }
-  
-  .topic-selector select {
-    padding: 8px;
-    font-size: 16px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-right: 10px;
-  }
-  
-  .topic-selector button {
-    padding: 8px 16px;
-    background-color: #ff5a7d;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  
-  .topic-selector button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-  }
-  
-  .insight-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
-    max-width: 800px;
-    overflow-y: auto;  }
-  
-  .insight-item {
-    display: flex;
-    align-items: flex-start;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .insight-icon {
-    font-size: 20px;
-    color: #ff5a7d;
-    margin-right: 10px;
-  }
-  
-  .insight-item p {
-    font-size: 15px;
-    color: #333;
-    line-height: 1.6;
-    margin: 0;
-  }
+}
+
+.educational-insights h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 30px;
+  background: linear-gradient(135deg, #ec4899, #be185d, #1f2937);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  z-index: 1;
+}
+
+.topic-selector {
+  margin-bottom: 30px;
+  position: relative;
+  z-index: 1;
+}
+
+.topic-selector label {
+  margin-right: 15px;
+  font-size: 17px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.topic-selector select {
+  padding: 12px 16px;
+  font-size: 16px;
+  border: 2px solid rgba(236, 72, 153, 0.2);
+  border-radius: 15px;
+  margin-right: 15px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #374151;
+  font-family: 'Inter', sans-serif;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.topic-selector select:focus {
+  outline: none;
+  border-color: #ec4899;
+  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+}
+
+.topic-selector button {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+  color: #be185d;
+  border: 2px solid rgba(236, 72, 153, 0.2);
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.1);
+}
+
+.topic-selector button:hover {
+  background: linear-gradient(135deg, #ec4899, #be185d);
+  color: white;
+  border-color: #ec4899;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(236, 72, 153, 0.3);
+}
+
+.topic-selector button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.insight-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 25px;
+  justify-content: center;
+  margin-top: 30px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 20px 20px 40px 20px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(236, 72, 153, 0.5) rgba(255, 255, 255, 0.3);
+  position: relative;
+  z-index: 1;
+}
+
+/* Enhanced scrollbar styling */
+.insight-cards::-webkit-scrollbar {
+  width: 10px;
+}
+
+.insight-cards::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.insight-cards::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #ec4899, #be185d);
+  border-radius: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.insight-cards::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #be185d, #ec4899);
+}
+
+.insight-card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(236, 72, 153, 0.15);
+  border-radius: 20px;
+  padding: 25px;
+  width: 280px;
+  min-height: 180px;
+  box-shadow: 0 8px 32px rgba(236, 72, 153, 0.15);
+  text-align: left;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  backdrop-filter: blur(15px);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.insight-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(1px 1px at 20px 20px, rgba(236, 72, 153, 0.1), transparent),
+    radial-gradient(1px 1px at 60px 40px, rgba(190, 24, 93, 0.08), transparent);
+  background-repeat: repeat;
+  background-size: 80px 60px;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.insight-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(236, 72, 153, 0.25);
+  border-color: rgba(236, 72, 153, 0.3);
+}
+
+.insight-icon {
+  font-size: 2rem;
+  margin-bottom: 15px;
+  position: relative;
+  z-index: 1;
+}
+
+.insight-card p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #374151;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  position: relative;
+  z-index: 1;
+  margin: 0;
+}
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 30px;
+  position: relative;
+  z-index: 1;
+}
+
+.pagination-btn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+  color: #be185d;
+  border: 2px solid rgba(236, 72, 153, 0.2);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ec4899, #be185d);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.page-numbers {
+  display: flex;
+  gap: 8px;
+}
+
+.page-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(236, 72, 153, 0.2);
+  color: #be185d;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+}
+
+.page-number:hover {
+  background: linear-gradient(135deg, #ec4899, #be185d);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+}
+
+.page-number.active {
+  background: linear-gradient(135deg, #ec4899, #be185d);
+  color: white;
+  border-color: #ec4899;
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+}
   
   .modal {
     background-color: white;
