@@ -21,8 +21,11 @@ const allowedOrigins = [
   "https://www.askluna.info",
 ];
 
+console.log("Allowed CORS origins:", allowedOrigins);
+
 app.use((req, res, next) => {
   const origin = req.headers.origin;
+  console.log("Incoming request origin:", origin);  // 👈 log the actual origin
 
   if (allowedOrigins.includes(origin)) {
     res.header("Access-Control-Allow-Origin", origin);
@@ -38,6 +41,7 @@ app.use((req, res, next) => {
 
   next();
 });
+
 
 
 
