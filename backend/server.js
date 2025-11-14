@@ -6,47 +6,62 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
 const User = require("./models/User");
-const app = express();
-const PORT = process.env.PORT || 5001;
-const mongoUrl = process.env.MONGO_URI;
 const Cycle = require("./models/Cycle");
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY; 
+const app = express();
+const PORT = process.env.PORT || 5001;
+const mongoUrl = process.env.MONGO_URI || process.env.MONGO_API; // Handle both variable names
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.GEMINI_API;
 
-// CORS configuration - allow both development and production origins
+// Log environment variables (without exposing sensitive data)
+console.log("Environment check:");
+console.log("- PORT:", PORT);
+console.log("- MONGO_URI exists:", !!mongoUrl);
+console.log("- GEMINI_API_KEY exists:", !!GEMINI_API_KEY);
+console.log("- CORS_ORIGIN:", process.env.CORS_ORIGIN);
+
+// CORS configuration - MUST be before other middleware
 const allowedOrigins = [
-  process.env.CORS_ORIGIN,         
-  `${process.env.CORS_ORIGIN}/`,   
   "https://askluna.info",
   "https://www.askluna.info",
+  "http://localhost:3000",
+  "http://localhost:5173"
 ];
+
+// Add CORS_ORIGIN from environment if it exists
+if (process.env.CORS_ORIGIN) {
+  allowedOrigins.push(process.env.CORS_ORIGIN);
+  // Also add with trailing slash
+  allowedOrigins.push(`${process.env.CORS_ORIGIN}/`);
+}
 
 console.log("Allowed CORS origins:", allowedOrigins);
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  console.log("Incoming request origin:", origin);  // 👈 log the actual origin
+// Use the cors package with proper configuration
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    console.log("Request origin:", origin);
+    
+    if (allowedOrigins.includes(origin)) {
+      console.log("✓ Origin allowed:", origin);
+      callback(null, true);
+    } else {
+      console.log("✗ Origin blocked:", origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
-  if (allowedOrigins.includes(origin)) {
-    res.header("Access-Control-Allow-Origin", origin);
-  }
-
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-
-  next();
-});
-
-
-
-
+// Body parser middleware
 app.use(express.json());
 
+// Authenticate middleware
 const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
@@ -63,26 +78,34 @@ const authenticate = (req, res, next) => {
 
 // Connect to MongoDB
 mongoose.connect(mongoUrl)
-  .then(() => console.log("Connected to MongoDB successfully!"))
+  .then(() => console.log("✓ Connected to MongoDB successfully!"))
   .catch((err) => {
-    console.error("Error connecting to MongoDB:", err);
+    console.error("✗ Error connecting to MongoDB:", err);
     process.exit(1);
   });
 
-// Routes
+// Health check endpoint
+app.get("/", (req, res) => {
+  res.json({ 
+    status: "Server is running",
+    timestamp: new Date().toISOString(),
+    corsOrigins: allowedOrigins
+  });
+});
+
 // Register a new user
 app.post("/api/register", async (req, res) => {
   const { username, email, password } = req.body;
-  console.log("Register request received:", { username, email, password });
+  console.log("Register request received:", { username, email, password: "***" });
+  
   try {
     const user = new User({ username, email, password });
     await user.save();
-    console.log("User saved to database:", user);
+    console.log("✓ User saved to database:", user.username);
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
-    console.error("Registration error:", error);
+    console.error("✗ Registration error:", error);
     if (error.code === 11000) {
-      // Handle duplicate email or username
       const field = Object.keys(error.keyPattern)[0];
       res.status(400).json({ error: `${field} already exists` });
     } else {
@@ -95,7 +118,6 @@ app.post("/api/register", async (req, res) => {
 app.post("/api/login", async (req, res) => {
   const { identifier, password } = req.body;
   try {
-    // Find user by username or email
     const user = await User.findOne({
       $or: [{ username: identifier }, { email: identifier }],
     });
@@ -104,7 +126,6 @@ app.post("/api/login", async (req, res) => {
       return res.status(400).json({ error: "Invalid credentials" });
     }
 
-    // Generate a JWT token
     const token = jwt.sign({ userId: user._id }, "your-secret-key", { expiresIn: "1h" });
     res.json({ token });
   } catch (error) {
@@ -131,17 +152,14 @@ app.post("/api/cycles", authenticate, async (req, res) => {
     const cycleStartDate = new Date(startDate);
     const cycleEndDate = new Date(endDate);
     
-    // Validate dates
     if (cycleStartDate > cycleEndDate) {
       return res.status(400).json({ error: "Start date cannot be after end date" });
     }
     
-    // Calculate period length (actual bleeding days)
     const periodLength = Math.floor(
       (cycleEndDate - cycleStartDate) / (1000 * 60 * 60 * 24)
-    ) + 1; // +1 to include both start and end day
+    ) + 1;
     
-    // Calculate cycle length from previous cycle if available
     let cycleLength = null;
     const previousCycles = await Cycle.find({ userId }).sort({ startDate: -1 }).limit(1);
     if (previousCycles.length > 0) {
@@ -149,19 +167,13 @@ app.post("/api/cycles", authenticate, async (req, res) => {
       cycleLength = Math.floor(
         (cycleStartDate - lastCycleStart) / (1000 * 60 * 60 * 24)
       );
-      console.log(`Calculated cycle length: ${cycleLength} days between ${lastCycleStart} and ${cycleStartDate}`);
-      // Only set to null if extremely unreasonable (but allow wider range for user flexibility)
+      console.log(`Calculated cycle length: ${cycleLength} days`);
       if (cycleLength < 15 || cycleLength > 60) {
         console.log(`Cycle length ${cycleLength} is out of range, setting to null`);
         cycleLength = null;
       }
-    } else {
-      // For the first cycle, we can't calculate length yet, but subsequent cycles will trigger updates
-      console.log("No previous cycles found, this is the first cycle.");
-      cycleLength = null;
     }
     
-    // After saving this cycle, update the previous cycle's length if it was null
     if (previousCycles.length > 0 && !previousCycles[0].cycleLength) {
       const lastCycleStart = new Date(previousCycles[0].startDate);
       const calculatedLength = Math.floor(
@@ -173,17 +185,15 @@ app.post("/api/cycles", authenticate, async (req, res) => {
       }
     }
     
-    // Determine phase based on current date relative to this cycle
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normalize to start of day
+    today.setHours(0, 0, 0, 0);
     const cycleStart = new Date(cycleStartDate);
     cycleStart.setHours(0, 0, 0, 0);
     const cycleEnd = new Date(cycleEndDate);
     cycleEnd.setHours(0, 0, 0, 0);
     
-    let phase = "Menstrual"; // Default phase for historical cycles
+    let phase = "Menstrual";
     
-    // Only calculate current phase if this cycle overlaps with today
     if (today >= cycleStart) {
       const daysSinceStart = Math.floor((today - cycleStart) / (1000 * 60 * 60 * 24));
       const daysSinceEnd = Math.floor((today - cycleEnd) / (1000 * 60 * 60 * 24));
@@ -199,7 +209,6 @@ app.post("/api/cycles", authenticate, async (req, res) => {
       }
     }
     
-    // Check for duplicate cycles (same start date)
     const existingCycle = await Cycle.findOne({
       userId,
       startDate: {
@@ -212,10 +221,9 @@ app.post("/api/cycles", authenticate, async (req, res) => {
       return res.status(400).json({ error: "A cycle with this start date already exists" });
     }
     
-    // Extract month/year information for organization
-    const month = cycleStartDate.getMonth(); // 0-11
+    const month = cycleStartDate.getMonth();
     const year = cycleStartDate.getFullYear();
-    const monthYear = `${year}-${String(month + 1).padStart(2, '0')}`; // Format: "2024-01"
+    const monthYear = `${year}-${String(month + 1).padStart(2, '0')}`;
     
     const cycle = new Cycle({
       userId,
@@ -245,7 +253,6 @@ app.get("/api/cycles", authenticate, async (req, res) => {
   try {
     let query = { userId };
     
-    // Filter by specific month/year if provided
     if (month && year) {
       const monthYear = `${year}-${String(month).padStart(2, '0')}`;
       query.monthYear = monthYear;
@@ -259,7 +266,7 @@ app.get("/api/cycles", authenticate, async (req, res) => {
   }
 });
 
-// Get cycles grouped by month for a user
+// Get cycles grouped by month
 app.get("/api/cycles/by-month", authenticate, async (req, res) => {
   const userId = req.user.userId;
   try {
@@ -275,7 +282,7 @@ app.get("/api/cycles/by-month", authenticate, async (req, res) => {
           year: { $first: "$year" }
         }
       },
-      { $sort: { "_id": -1 } } // Sort by monthYear descending
+      { $sort: { "_id": -1 } }
     ]);
     
     res.json(cycles);
@@ -285,18 +292,17 @@ app.get("/api/cycles/by-month", authenticate, async (req, res) => {
   }
 });
 
-// Update existing cycles to calculate missing cycle lengths
+// Update cycles lengths
 app.post("/api/cycles/update-lengths", authenticate, async (req, res) => {
   const userId = req.user.userId;
   try {
-    const cycles = await Cycle.find({ userId }).sort({ startDate: 1 }); // Oldest first
+    const cycles = await Cycle.find({ userId }).sort({ startDate: 1 });
     
     let updated = 0;
     for (let i = 1; i < cycles.length; i++) {
       const currentCycle = cycles[i];
       const previousCycle = cycles[i - 1];
       
-      // Only update if cycle length is missing
       if (!currentCycle.cycleLength) {
         const cycleLength = Math.floor(
           (new Date(currentCycle.startDate) - new Date(previousCycle.startDate)) / (1000 * 60 * 60 * 24)
@@ -317,7 +323,7 @@ app.post("/api/cycles/update-lengths", authenticate, async (req, res) => {
   }
 });
 
-// Predict next period and fertile/ovulation windows
+// Predict next period
 app.get("/api/cycles/predict", authenticate, async (req, res) => {
   const userId = req.user.userId;
   try {
@@ -327,26 +333,22 @@ app.get("/api/cycles/predict", authenticate, async (req, res) => {
     }
     
     const lastCycle = cycles[0];
-    // Calculate average cycle length from last 3-6 cycles or all available
     const recentCycles = cycles.slice(0, Math.min(6, cycles.length));
     const validCycleLengths = recentCycles.filter(cycle => cycle.cycleLength && cycle.cycleLength > 20 && cycle.cycleLength < 40);
     
-    let averageCycleLength = 28; // Default
+    let averageCycleLength = 28;
     if (validCycleLengths.length > 0) {
       averageCycleLength = Math.round(
         validCycleLengths.reduce((sum, cycle) => sum + cycle.cycleLength, 0) / validCycleLengths.length
       );
     }
     
-    // Next period starts from last period start date + average cycle length
     const nextPeriodDate = new Date(lastCycle.startDate);
     nextPeriodDate.setDate(nextPeriodDate.getDate() + averageCycleLength);
     
-    // Ovulation typically occurs 14 days before next period
     const ovulationDate = new Date(nextPeriodDate);
     ovulationDate.setDate(ovulationDate.getDate() - 14);
     
-    // Fertile window: 5 days before ovulation to 1 day after
     const fertileWindowStart = new Date(ovulationDate);
     fertileWindowStart.setDate(fertileWindowStart.getDate() - 5);
     const fertileWindowEnd = new Date(ovulationDate);
@@ -369,9 +371,8 @@ function calculateMoonPhase(date) {
   const moonPhases = ["New Moon", "Waxing Crescent", "First Quarter", "Waxing Gibbous",
                      "Full Moon", "Waning Gibbous", "Last Quarter", "Waning Crescent"];
   
-  // Known new moon date (January 11, 2024)
   const knownNewMoon = new Date('2024-01-11');
-  const lunarCycle = 29.53058867; // Average lunar cycle in days
+  const lunarCycle = 29.53058867;
   
   const daysDiff = Math.abs(date - knownNewMoon) / (1000 * 60 * 60 * 24);
   const cyclePosition = (daysDiff % lunarCycle) / lunarCycle;
@@ -380,17 +381,15 @@ function calculateMoonPhase(date) {
   return moonPhases[phaseIndex];
 }
 
-// Get moon phase for a specific date
+// Get moon phase
 app.get("/api/moon-phase", async (req, res) => {
   const { date } = req.query;
   console.log("Fetching moon phase for date:", date);
   
   try {
     const response = await axios.get(`https://api.farmsense.net/v1/moonphases/?d=${date}`, {
-      timeout: 5000 // 5 second timeout
+      timeout: 5000
     });
-    
-    console.log("Moon phase API response:", response.data);
     
     if (response.data && response.data.length > 0 && response.data[0].Phase) {
       const moonPhase = response.data[0].Phase;
@@ -402,7 +401,6 @@ app.get("/api/moon-phase", async (req, res) => {
   } catch (error) {
     console.error("Moon phase API error:", error.message);
     
-    // Fallback: calculate moon phase based on lunar cycle
     try {
       const moonPhase = calculateMoonPhase(new Date(date));
       console.log("Using fallback moon phase:", moonPhase);
@@ -414,11 +412,10 @@ app.get("/api/moon-phase", async (req, res) => {
   }
 });
 
-// Get astrology-based suggestions using Gemini API
+// Astrology suggestions
 app.post("/api/astrology-suggestions", authenticate, async (req, res) => {
   const { zodiacSign, cyclePhase } = req.body;
 
-  // Validate input
   if (!zodiacSign || !cyclePhase) {
     return res.status(400).json({ error: "zodiacSign and cyclePhase are required" });
   }
@@ -455,5 +452,5 @@ app.post("/api/astrology-suggestions", authenticate, async (req, res) => {
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`✓ Server running on http://localhost:${PORT}`);
 });
