@@ -38,6 +38,12 @@ const CycleTracker = () => {
   // Fetch cycle data
   useEffect(() => {
     const fetchCycles = async () => {
+      if (!token || !userId) {
+        console.log("No authentication token available, skipping data fetch");
+        setError("Please log in to view your cycle data.");
+        return;
+      }
+      
       try {
         // Fetch all cycles
         const allCyclesResponse = await axios.get("https://luna-backend-56fr.onrender.com/api/cycles", {
@@ -50,13 +56,18 @@ const CycleTracker = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setCyclesByMonth(monthlyResponse.data);
+        setError(""); // Clear any previous errors
       } catch (error) {
         console.error("Failed to fetch cycles:", error);
-        setError("Failed to fetch cycles. Please try again.");
+        if (error.response?.status === 401) {
+          setError("Your session has expired. Please log in again.");
+        } else {
+          setError("Failed to fetch cycles. Please check your connection and try again.");
+        }
       }
     };
     fetchCycles();
-  }, [token]);
+  }, [token, userId]);
 
   // Update cycle lengths on component mount
   useEffect(() => {
