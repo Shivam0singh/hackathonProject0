@@ -15,7 +15,7 @@ const EducationalInsights = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedInsight, setSelectedInsight] = useState("");
+  const [selectedInsight] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 

@@ -553,7 +553,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import Modal from "react-modal";
 import { FaMoon, FaSun, FaSeedling, FaLeaf, FaTimes } from "react-icons/fa";
-import { useSpring, animated } from "@react-spring/web";
+import { useSpring } from "@react-spring/web";
 import "../styles/CycleTracker.css";
 
 Modal.setAppElement("#root");
@@ -628,7 +628,7 @@ const CycleTracker = () => {
     if (lastAstrologyFetch.current === fetchKey) return;
     lastAstrologyFetch.current = fetchKey;
     fetchAstrologySuggestion(selectedZodiac, cyclePhase);
-  }, [astrologyEnabled, selectedZodiac, cycleData]);
+  }, [astrologyEnabled, selectedZodiac, cycleData, fetchAstrologySuggestion]);
 
   const updateCycleLengths = async () => {
     try {
@@ -833,11 +833,6 @@ const CycleTracker = () => {
     }
   };
 
-  const moonAnimation = useSpring({
-    from: { opacity: 0, transform: "scale(0.5)" },
-    to: { opacity: 1, transform: "scale(1)" },
-    config: { duration: 1000 },
-  });
 
   return (
     <div className="cycle-tracker">
