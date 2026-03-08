@@ -8,6 +8,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
 const User = require("./models/User");
+const Cycle = require("./models/Cycle");
+
 const app = express();
 const PORT = process.env.PORT || 5001;
 const mongoUrl = process.env.MONGO_URI;
@@ -170,7 +172,7 @@ app.post("/api/register", async (req, res) => {
     await user.save();
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
-    console.error("Registration error:", error);
+    console.error("✗ Registration error:", error);
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0];
       res.status(400).json({ error: `${field} already exists` });
@@ -182,6 +184,8 @@ app.post("/api/register", async (req, res) => {
 
 app.post("/api/login", async (req, res) => {
   const { identifier, password } = req.body;
+  console.log("Login request from origin:", req.headers.origin);
+  
   try {
     const user = await User.findOne({
       $or: [{ username: identifier }, { email: identifier }],
@@ -245,6 +249,7 @@ app.post("/api/cycles", authenticate, async (req, res) => {
     }
 
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
     const cycleStart = new Date(cycleStartDate);
     cycleStart.setHours(0, 0, 0, 0);
@@ -710,5 +715,6 @@ app.delete("/api/eva/conversations", authenticate, async (req, res) => {
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`✓ Server running on port ${PORT}`);
+  console.log(`✓ CORS enabled for:`, corsOptions.origin);
 });
