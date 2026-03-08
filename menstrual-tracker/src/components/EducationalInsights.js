@@ -1,102 +1,62 @@
-import React, { useState } from "react";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import React, { useState, useContext } from "react";
+import axios from "axios";
+import AuthContext from "../context/AuthContext";
+import API_URL from "../config";
 import Modal from "react-modal";
 import "../styles/EducationalInsights.css";
 
-Modal.setAppElement("#root"); 
+Modal.setAppElement("#root");
 
+// FIX: Gemini is now called from the backend — no API key in frontend
 const EducationalInsights = () => {
+  const { token } = useContext(AuthContext);
   const [topic, setTopic] = useState("cramps");
   const [insights, setInsights] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedInsight, setSelectedInsight] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
-  const API_KEY = process.env.REACT_APP_GEMINI_API_KEY; 
-  const genAI = new GoogleGenerativeAI(API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
   const getInsights = async () => {
-    setLoading(true);
-    let prompt = "";
-
-    // Set the prompt based on the selected topic
-    switch (topic) {
-      case "cramps":
-        prompt = `Provide 5 concise, science-backed facts about managing menstrual cramps. Format the response as a list, like this:
-        - Take over-the-counter pain relievers like ibuprofen to block prostaglandins.
-        - Apply heat via a heating pad to relax uterine muscles.
-        - Engage in light exercise like yoga to release endorphins.
-        - Consider taking magnesium supplements to reduce cramping severity.
-        - Consume anti-inflammatory foods like fruits and vegetables.`;
-        break;
-      case "mood":
-        prompt = `Explain how hormonal changes during the menstrual cycle affect mood. Format the response as a list, like this:
-        - Hormonal fluctuations can cause mood swings due to changes in serotonin levels.
-        - Estrogen levels rise and fall throughout the cycle, affecting mood regulation.
-        - Track your cycle and mood to identify patterns.
-        - Practice relaxation techniques like deep breathing or yoga.
-        - Limit caffeine and processed foods to stabilize mood.`;
-        break;
-      case "myths":
-        prompt = `List 5 common myths and facts about menstruation. Format the response as a list, like this:
-        - Myth: You can't get pregnant during your period.
-        - Fact: While unlikely, pregnancy is still possible due to sperm survival.
-        - Myth: Menstrual blood is dirty.
-        - Fact: Menstrual blood is a natural bodily fluid and is not dirty.
-        - Myth: You shouldn't exercise during your period.
-        - Fact: Light exercise can actually help reduce cramps and improve mood.`;
-        break;
-      default:
-        prompt = `Provide 5 general, concise, and science-backed menstrual health facts. Format the response as a list, like this:
-        - Stay hydrated to reduce bloating and cramps.
-        - Track your menstrual cycle to understand patterns.
-        - Avoid caffeine and salty foods to minimize discomfort.
-        - Use a heating pad to relieve cramps.
-        - Consult a healthcare provider for persistent issues.`;
+    if (!token) {
+      setError("Please log in to get insights.");
+      return;
     }
-
-    console.log("Sending prompt to Gemini API:", prompt); // Log the prompt
+    setLoading(true);
+    setError("");
 
     try {
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
-      console.log("API Response:", text); // Log the API response
-
-      const formattedInsights = formatInsights(text); // Format the response
-      setInsights(formattedInsights);
-    } catch (error) {
-      console.error("Error fetching insights:", error);
+      const response = await axios.post(
+        `${API_URL}/api/educational-insights`,
+        { topic },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const formatted = formatInsights(response.data.insights);
+      setInsights(formatted);
+    } catch (err) {
+      console.error("Error fetching insights:", err);
+      if (err.response?.status === 429) {
+        setError("AI is temporarily rate limited. Please wait a moment and try again.");
+      } else {
+        setError("Failed to fetch insights. Please try again.");
+      }
       setInsights([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Function to format the API response into structured insights
   const formatInsights = (text) => {
-    console.log("Raw API Response:", text); // Log the raw response
-
-    // Split the response into lines and remove empty lines
     const lines = text.split("\n").filter((line) => line.trim() !== "");
-
-    // Filter out unwanted lines (e.g., "Here are 5 science-backed facts...")
-    const filteredLines = lines.filter((line) => !line.toLowerCase().includes("here are"));
-
-    // Format the response into an array of objects
-    const formattedInsights = filteredLines.map((line) => ({
-      id: Math.random().toString(36).substring(7), // Generate a unique ID
-      content: line.replace(/\*/g, "").trim(), // Remove asterisks and trim spaces
+    const filtered = lines.filter((line) => !line.toLowerCase().includes("here are"));
+    return filtered.map((line) => ({
+      id: Math.random().toString(36).substring(7),
+      content: line.replace(/\*/g, "").trim(),
     }));
-
-    console.log("Formatted Insights:", formattedInsights); // Log the formatted insights
-    return formattedInsights;
   };
 
-  // Calculate pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentInsights = insights.slice(indexOfFirstItem, indexOfLastItem);
@@ -106,12 +66,28 @@ const EducationalInsights = () => {
 
   const handleTopicChange = (e) => {
     setTopic(e.target.value);
-    setCurrentPage(1); // Reset to first page when topic changes
+    setCurrentPage(1);
+    setInsights([]);
+    setError("");
   };
 
   return (
     <div className="educational-insights">
       <h2>Educational Insights</h2>
+
+      {error && (
+        <div style={{
+          background: "rgba(239,68,68,0.1)",
+          color: "#dc2626",
+          padding: "12px 20px",
+          borderRadius: "10px",
+          marginBottom: "16px",
+          textAlign: "center"
+        }}>
+          {error}
+        </div>
+      )}
+
       <div className="topic-selector">
         <label htmlFor="topic">Select a Topic:</label>
         <select id="topic" value={topic} onChange={handleTopicChange}>
@@ -124,7 +100,6 @@ const EducationalInsights = () => {
         </button>
       </div>
 
-      {/* Insight Cards with Pagination */}
       <div className="insight-cards">
         {currentInsights.length > 0 ? (
           currentInsights.map((insight) => (
@@ -134,18 +109,15 @@ const EducationalInsights = () => {
             </div>
           ))
         ) : (
-          <p>Select a topic and click "Get Insights" to see educational content.</p>
+          !loading && (
+            <p>Select a topic and click "Get Insights" to see educational content.</p>
+          )
         )}
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="pagination">
-          <button
-            onClick={() => paginate(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="pagination-btn prev"
-          >
+          <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} className="pagination-btn prev">
             ← Previous
           </button>
           <div className="page-numbers">
@@ -153,23 +125,18 @@ const EducationalInsights = () => {
               <button
                 key={number}
                 onClick={() => paginate(number)}
-                className={`page-number ${currentPage === number ? 'active' : ''}`}
+                className={`page-number ${currentPage === number ? "active" : ""}`}
               >
                 {number}
               </button>
             ))}
           </div>
-          <button
-            onClick={() => paginate(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="pagination-btn next"
-          >
+          <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} className="pagination-btn next">
             Next →
           </button>
         </div>
       )}
 
-      {/* Modal for Full Insight */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={() => setIsModalOpen(false)}
@@ -179,12 +146,11 @@ const EducationalInsights = () => {
       >
         <h3>Full Insight</h3>
         <p>{selectedInsight}</p>
-        <button onClick={() => setIsModalOpen(false)} className="close-button">
-          Close
-        </button>
+        <button onClick={() => setIsModalOpen(false)} className="close-button">Close</button>
       </Modal>
     </div>
   );
 };
 
 export default EducationalInsights;
+

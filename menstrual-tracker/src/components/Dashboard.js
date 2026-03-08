@@ -1,13 +1,14 @@
-import React from 'react';
-import CycleTracker from './CycleTracker';
-import NutritionGuide from './NutritionGuide'; 
-import '../styles/Dashboard.css';
+import React from "react";
+import CycleTracker from "./CycleTracker";
+import "../styles/Dashboard.css";
 
-export const Dashboard = () => {
+// FIX: NutritionGuide was wrongly here and CycleTracker was commented out.
+// Dashboard is the main hub — it shows CycleTracker.
+// NutritionGuide has its own route at /nutrition.
+const Dashboard = () => {
   return (
     <div className="dashboard">
-      {/* <CycleTracker /> */}
-      <NutritionGuide />
+      <CycleTracker />
     </div>
   );
 };
