@@ -544,7 +544,7 @@
 // export default CycleTracker;
 
 
-import React, { useState, useContext, useEffect, useRef } from "react";
+import React, { useState, useContext, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import AuthContext from "../context/AuthContext";
 import API_URL from "../config";
@@ -553,7 +553,6 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import Modal from "react-modal";
 import { FaMoon, FaSun, FaSeedling, FaLeaf, FaTimes } from "react-icons/fa";
-import { useSpring } from "@react-spring/web";
 import "../styles/CycleTracker.css";
 
 Modal.setAppElement("#root");
@@ -617,6 +616,28 @@ const CycleTracker = () => {
       updateCycleLengths();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
+  const fetchAstrologySuggestion = useCallback(async (zodiacSign, cyclePhase) => {
+    setAstrologyLoading(true);
+    setAstrologyError("");
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/astrology-suggestions`,
+        { zodiacSign, cyclePhase },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setSuggestion(cleanSuggestion(response.data.suggestion));
+    } catch (error) {
+      console.error("Failed to fetch astrology suggestion:", error);
+      if (error.response?.status === 429) {
+        setAstrologyError("AI is temporarily rate limited. Please try again in a minute.");
+      } else {
+        setAstrologyError("Unable to fetch astrology suggestions at this time.");
+      }
+    } finally {
+      setAstrologyLoading(false);
+    }
   }, [token]);
 
   // Astrology only re-fetches when zodiac OR phase actually changes
@@ -720,27 +741,6 @@ const CycleTracker = () => {
     }
   };
 
-  const fetchAstrologySuggestion = async (zodiacSign, cyclePhase) => {
-    setAstrologyLoading(true);
-    setAstrologyError("");
-    try {
-      const response = await axios.post(
-        `${API_URL}/api/astrology-suggestions`,
-        { zodiacSign, cyclePhase },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setSuggestion(cleanSuggestion(response.data.suggestion));
-    } catch (error) {
-      console.error("Failed to fetch astrology suggestion:", error);
-      if (error.response?.status === 429) {
-        setAstrologyError("AI is temporarily rate limited. Please try again in a minute.");
-      } else {
-        setAstrologyError("Unable to fetch astrology suggestions at this time.");
-      }
-    } finally {
-      setAstrologyLoading(false);
-    }
-  };
 
   const cleanSuggestion = (suggestion) => {
     const lines = suggestion.split("\n").filter(
