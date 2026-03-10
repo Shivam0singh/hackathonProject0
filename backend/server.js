@@ -13,7 +13,6 @@ const Cycle = require("./models/Cycle");
 const app = express();
 const PORT = process.env.PORT || 5001;
 const mongoUrl = process.env.MONGO_URI;
-const Cycle = require("./models/Cycle");
 const Conversation = require("./models/Conversation");
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
@@ -110,8 +109,9 @@ const allowedOrigins = [
   `${process.env.CORS_ORIGIN}/`,
   "https://askluna.info",
   "https://www.askluna.info",
+  "http://localhost:3000",
+  "https://localhost:3000/",
 ];
-
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
@@ -716,5 +716,5 @@ app.delete("/api/eva/conversations", authenticate, async (req, res) => {
 // Start the server
 app.listen(PORT, () => {
   console.log(`✓ Server running on port ${PORT}`);
-  console.log(`✓ CORS enabled for:`, corsOptions.origin);
+  console.log(`✓ CORS enabled for:`, allowedOrigins.filter(origin => origin).join(', '));
 });

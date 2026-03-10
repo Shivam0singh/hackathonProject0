@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: askluna-backend
+    env: node
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5001
+      - key: MONGO_URI
+        sync: false   # You'll paste this in the Render dashboard
+      - key: JWT_SECRET
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: CORS_ORIGIN
+        value: https://askluna.vercel.app  # Change to your actual Vercel URL
