@@ -107,10 +107,8 @@ const validateAIProvider = () => {
 const allowedOrigins = [
   process.env.CORS_ORIGIN,
   `${process.env.CORS_ORIGIN}/`,
-  "https://askluna.info",
-  "https://www.askluna.info",
-  "http://localhost:3000",
-  "https://localhost:3000/",
+  "https://askluna.org",
+  "https://www.askluna.org",
 ];
 app.use((req, res, next) => {
   const origin = req.headers.origin;
